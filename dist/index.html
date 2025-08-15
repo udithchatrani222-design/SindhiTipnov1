@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sindhi Tipno - Religious Calendar & Devotional Content</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="styles/main.css">
+    <link rel="stylesheet" href="styles/auth.css">
+</head>
+<body>
+    <!-- Login Modal -->
+    <div id="loginModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Welcome to Sindhi Tipno</h2>
+                <span class="close" id="closeModal">&times;</span>
+            </div>
+            <div class="modal-body">
+                <div class="auth-tabs">
+                    <button class="tab-btn active" data-tab="login">Login</button>
+                    <button class="tab-btn" data-tab="register">Register</button>
+                    <button class="tab-btn" data-tab="guest">Continue as Guest</button>
+                </div>
+
+                <!-- Login Form -->
+                <div id="login-form" class="auth-form active">
+                    <div class="form-group">
+                        <label>Email or Phone</label>
+                        <input type="text" id="loginIdentifier" placeholder="Enter email or phone number">
+                    </div>
+                    <div class="form-group">
+                        <label>Password (Optional)</label>
+                        <input type="password" id="loginPassword" placeholder="Enter password if you have one">
+                    </div>
+                    <button class="auth-btn" id="loginBtn">Login</button>
+                    <div class="admin-login-link">
+                        <a href="#" id="adminLoginLink">Admin Login</a>
+                    </div>
+                </div>
+
+                <!-- Register Form -->
+                <div id="register-form" class="auth-form">
+                    <div class="form-group">
+                        <label>Email or Phone</label>
+                        <input type="text" id="registerIdentifier" placeholder="Enter email or phone number">
+                    </div>
+                    <div class="form-group">
+                        <label>Password (Optional)</label>
+                        <input type="password" id="registerPassword" placeholder="Set a password (optional)">
+                    </div>
+                    <button class="auth-btn" id="registerBtn">Register</button>
+                </div>
+
+                <!-- Guest Form -->
+                <div id="guest-form" class="auth-form">
+                    <div class="guest-info">
+                        <i class="fas fa-user-friends"></i>
+                        <h3>Continue as Guest</h3>
+                        <p>Access all features without creating an account. You can register later if you want to save your preferences.</p>
+                    </div>
+                    <button class="auth-btn" id="guestBtn">Continue as Guest</button>
+                </div>
+
+                <!-- Admin Login Form -->
+                <div id="admin-form" class="auth-form">
+                    <div class="admin-header">
+                        <i class="fas fa-shield-alt"></i>
+                        <h3>Admin Login</h3>
+                    </div>
+                    <div class="form-group">
+                        <label>Username</label>
+                        <input type="text" id="adminUsername" placeholder="Enter admin username">
+                    </div>
+                    <div class="form-group">
+                        <label>Password</label>
+                        <input type="password" id="adminPassword" placeholder="Enter admin password">
+                    </div>
+                    <button class="auth-btn admin-btn" id="adminLoginBtn">Admin Login</button>
+                    <div class="back-to-user">
+                        <a href="#" id="backToUserLogin">← Back to User Login</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="app-container">
+        <!-- Sidebar Navigation -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <h2>Sindhi Tipno</h2>
+                <p>Religious Calendar</p>
+            </div>
+            
+            <nav class="sidebar-nav">
+                <a href="#" class="nav-item active" data-section="today">
+                    <i class="fas fa-home"></i>
+                    <span>Today</span>
+                </a>
+                <a href="#" class="nav-item" data-section="calendar">
+                    <i class="fas fa-calendar"></i>
+                    <span>Calendar</span>
+                </a>
+                <a href="#" class="nav-item" data-section="bhajans">
+                    <i class="fas fa-music"></i>
+                    <span>Bhajans & Aarti</span>
+                </a>
+                <a href="#" class="nav-item" data-section="scriptures">
+                    <i class="fas fa-book"></i>
+                    <span>Scriptures</span>
+                </a>
+                <a href="#" class="nav-item admin-only" data-section="admin" style="display: none;">
+                    <i class="fas fa-shield-alt"></i>
+                    <span>Admin Panel</span>
+                </a>
+                <a href="#" class="nav-item" data-section="settings">
+                    <i class="fas fa-cog"></i>
+                    <span>Settings</span>
+                </a>
+            </nav>
+            
+            <div class="sidebar-footer">
+                <p>Made with ❤️ for the</p>
+                <p class="community-text">Sindhi Community</p>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Top Header -->
+            <header class="top-header">
+                <div class="search-container">
+                    <i class="fas fa-search"></i>
+                    <input type="text" placeholder="Search festivals, bhajans..." class="search-input">
+                </div>
+                <div class="user-profile">
+                    <div class="user-info">
+                        <i class="fas fa-user"></i>
+                        <span id="userDisplayName">Guest</span>
+                        <span class="user-type" id="userType">Guest User</span>
+                    </div>
+                    <button class="logout-btn" id="logoutBtn" style="display: none;">
+                        <i class="fas fa-sign-out-alt"></i>
+                    </button>
+                </div>
+            </header>
+
+            <!-- Today Section -->
+            <section id="today-section" class="content-section active">
+                <div class="page-header">
+                    <h1>Today's Observances</h1>
+                    <p>Friday, August 15, 2025</p>
+                </div>
+
+                <div class="content-grid">
+                    <!-- Main Festival Card -->
+                    <div class="festival-card main-festival">
+                        <div class="festival-header">
+                            <div class="festival-icon">⭐</div>
+                            <div>
+                                <h2>Thadri Big (Vadi Satai)</h2>
+                                <span class="festival-tag sindhi">Sindhi Festival</span>
+                            </div>
+                        </div>
+                        <p class="festival-description">
+                            Thadri Big is a major Sindhi festival celebrating harvest and prosperity, 
+                            also coinciding with Independence Day.
+                        </p>
+                        <div class="festival-actions">
+                            <button class="btn-primary">Learn More</button>
+                            <button class="btn-secondary">Add to Calendar</button>
+                        </div>
+                    </div>
+
+                    <!-- Upcoming Events -->
+                    <div class="upcoming-card">
+                        <h3>This Week</h3>
+                        <div class="event-list">
+                            <div class="event-item">
+                                <div class="event-date">Aug 16</div>
+                                <div class="event-info">
+                                    <h4>Krishna Janmashtami</h4>
+                                    <span class="event-tag hindu">Hindu Festival</span>
+                                </div>
+                            </div>
+                            <div class="event-item">
+                                <div class="event-date">Aug 18</div>
+                                <div class="event-info">
+                                    <h4>Pavitropana Ekadashi</h4>
+                                    <span class="event-tag hindu">Hindu Festival</span>
+                                </div>
+                            </div>
+                            <div class="event-item">
+                                <div class="event-date">Aug 21</div>
+                                <div class="event-info">
+                                    <h4>Amavasya (Bhadrapada)</h4>
+                                    <span class="event-tag hindu">Hindu Festival</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Quick Actions -->
+                <div class="quick-actions">
+                    <div class="action-card" data-section="calendar">
+                        <i class="fas fa-calendar"></i>
+                        <div>
+                            <h3>View Calendar</h3>
+                            <p>Browse all festivals</p>
+                        </div>
+                    </div>
+                    <div class="action-card" data-section="bhajans">
+                        <i class="fas fa-music"></i>
+                        <div>
+                            <h3>Bhajans & Aarti</h3>
+                            <p>Listen to devotional music</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Calendar Section -->
+            <section id="calendar-section" class="content-section">
+                <div class="page-header">
+                    <h1>Festival Calendar</h1>
+                    <p>August 2025</p>
+                </div>
+
+                <div class="calendar-container">
+                    <div class="calendar-header">
+                        <button class="calendar-nav" id="prevMonth">
+                            <i class="fas fa-chevron-left"></i>
+                        </button>
+                        <h2 id="currentMonth">August 2025</h2>
+                        <button class="calendar-nav" id="nextMonth">
+                            <i class="fas fa-chevron-right"></i>
+                        </button>
+                    </div>
+
+                    <div class="calendar-weekdays">
+                        <div class="weekday">Sun</div>
+                        <div class="weekday">Mon</div>
+                        <div class="weekday">Tue</div>
+                        <div class="weekday">Wed</div>
+                        <div class="weekday">Thu</div>
+                        <div class="weekday">Fri</div>
+                        <div class="weekday">Sat</div>
+                    </div>
+
+                    <div class="calendar-grid" id="calendarGrid">
+                        <!-- Calendar days will be populated by JavaScript -->
+                    </div>
+
+                    <div class="calendar-legend">
+                        <div class="legend-item">
+                            <span class="legend-dot sindhi"></span>
+                            <span>Sindhi Festivals</span>
+                        </div>
+                        <div class="legend-item">
+                            <span class="legend-dot hindu"></span>
+                            <span>Hindu Festivals</span>
+                        </div>
+                        <div class="legend-item">
+                            <i class="fas fa-star legend-star"></i>
+                            <span>Major Festival</span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Admin Panel Section -->
+            <section id="admin-section" class="content-section">
+                <div class="page-header">
+                    <h1>Admin Panel</h1>
+                    <p>Manage content and users</p>
+                </div>
+
+                <div class="admin-tabs">
+                    <button class="admin-tab-btn active" data-admin-tab="upload">Upload Content</button>
+                    <button class="admin-tab-btn" data-admin-tab="users">User Management</button>
+                </div>
+
+                <!-- Upload Content Tab -->
+                <div id="upload-tab" class="admin-tab-content active">
+                    <div class="upload-section">
+                        <h3>Upload Aartis & Bhajans</h3>
+                        <div class="upload-form">
+                            <div class="form-group">
+                                <label>Title</label>
+                                <input type="text" id="contentTitle" placeholder="Enter title">
+                            </div>
+                            <div class="form-group">
+                                <label>Type</label>
+                                <select id="contentType">
+                                    <option value="aarti">Aarti</option>
+                                    <option value="bhajan">Bhajan</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>Audio File</label>
+                                <input type="file" id="audioFile" accept="audio/*">
+                            </div>
+                            <div class="form-group">
+                                <label>Description</label>
+                                <textarea id="contentDescription" placeholder="Enter description"></textarea>
+                            </div>
+                            <button class="admin-action-btn" id="uploadContentBtn">Upload Content</button>
+                        </div>
+                    </div>
+
+                    <div class="content-list">
+                        <h3>Uploaded Content</h3>
+                        <div id="contentLibrary">
+                            <div class="content-item">
+                                <div class="content-info">
+                                    <h4>Sample Aarti</h4>
+                                    <span class="content-type">Aarti</span>
+                                </div>
+                                <div class="content-actions">
+                                    <button class="edit-btn">Edit</button>
+                                    <button class="delete-btn">Delete</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- User Management Tab -->
+                <div id="users-tab" class="admin-tab-content">
+                    <div class="user-management">
+                        <h3>Registered Users</h3>
+                        <div class="user-stats">
+                            <div class="stat-card">
+                                <h4 id="totalUsers">0</h4>
+                                <p>Total Users</p>
+                            </div>
+                            <div class="stat-card">
+                                <h4 id="registeredUsers">0</h4>
+                                <p>Registered</p>
+                            </div>
+                            <div class="stat-card">
+                                <h4 id="guestUsers">0</h4>
+                                <p>Guests</p>
+                            </div>
+                        </div>
+
+                        <div class="user-list">
+                            <div class="user-list-header">
+                                <span>User ID</span>
+                                <span>Contact</span>
+                                <span>Type</span>
+                                <span>Password</span>
+                                <span>Actions</span>
+                            </div>
+                            <div id="userListContainer">
+                                <!-- Users will be populated here -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Other Sections -->
+            <section id="bhajans-section" class="content-section">
+                <div class="page-header">
+                    <h1>Bhajans & Aarti</h1>
+                    <p>Devotional music and prayers</p>
+                </div>
+                <div class="coming-soon">
+                    <i class="fas fa-music"></i>
+                    <h3>Coming Soon</h3>
+                    <p>Bhajans and Aarti collection will be available here</p>
+                </div>
+            </section>
+
+            <section id="scriptures-section" class="content-section">
+                <div class="page-header">
+                    <h1>Scriptures</h1>
+                    <p>Sacred texts and teachings</p>
+                </div>
+                <div class="coming-soon">
+                    <i class="fas fa-book"></i>
+                    <h3>Coming Soon</h3>
+                    <p>Scripture collection will be available here</p>
+                </div>
+            </section>
+
+            <section id="settings-section" class="content-section">
+                <div class="page-header">
+                    <h1>Settings</h1>
+                    <p>Customize your experience</p>
+                </div>
+                <div class="coming-soon">
+                    <i class="fas fa-cog"></i>
+                    <h3>Coming Soon</h3>
+                    <p>Settings panel will be available here</p>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <script src="js/main.js"></script>
+    <script src="js/auth.js"></script>
+</body>
+</html>
