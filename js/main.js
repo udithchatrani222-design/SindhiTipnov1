@@ -75,19 +75,31 @@ class SindhiTipnoApp {
         const nextBtn = document.getElementById('nextMonth');
 
         if (prevBtn) {
-            prevBtn.addEventListener('click', () => {
-                this.currentDate.setMonth(this.currentDate.getMonth() - 1);
-                this.loadMonthEvents(this.currentDate.getMonth(), this.currentDate.getFullYear());
-                this.renderCalendar();
+            prevBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                this.navigateMonth(-1);
             });
         }
 
         if (nextBtn) {
-            nextBtn.addEventListener('click', () => {
-                this.currentDate.setMonth(this.currentDate.getMonth() + 1);
-                this.loadMonthEvents(this.currentDate.getMonth(), this.currentDate.getFullYear());
-                this.renderCalendar();
+            nextBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                this.navigateMonth(1);
             });
+        }
+    }
+
+    navigateMonth(direction) {
+        const newDate = new Date(this.currentDate);
+        newDate.setMonth(newDate.getMonth() + direction);
+        
+        // Ensure we stay within 2025
+        if (newDate.getFullYear() === 2025) {
+            this.currentDate = newDate;
+            this.loadMonthEvents(this.currentDate.getMonth(), this.currentDate.getFullYear());
+            this.renderCalendar();
         }
     }
 
@@ -95,59 +107,193 @@ class SindhiTipnoApp {
         // Clear current events
         this.currentMonthEvents = [];
         
-        // Load events for the specific month
-        const monthKey = `${year}-${month}`;
+        if (year !== 2025) return;
         
-        if (month === 0 && year === 2025) { // January 2025
-            this.currentMonthEvents = [
-                { date: 1, name: 'Satguru Swami Devprakashji Maharaj\'s 87th Birthday', type: 'sindhi', major: true },
-                { date: 1, name: 'Chand', type: 'hindu', major: false },
-                { date: 3, name: 'Ganesh Chaturthi', type: 'hindu', major: true },
-                { date: 6, name: 'Guru Gobind Singh Jayanti', type: 'sindhi', major: true },
-                { date: 10, name: 'Ekadashi', type: 'hindu', major: false },
-                { date: 12, name: 'Swami Vivekanand Birthday', type: 'sindhi', major: true },
-                { date: 13, name: 'Lohri (Lal Loi)', type: 'sindhi', major: true },
-                { date: 13, name: 'Satya Narayan', type: 'hindu', major: false },
-                { date: 14, name: 'Makarsankranti (Utran)', type: 'hindu', major: true },
-                { date: 16, name: 'Sadhu T.L. Vaswani 59th Anniversary', type: 'sindhi', major: true },
-                { date: 17, name: 'Ganesh Chaturthi', type: 'hindu', major: true },
-                { date: 20, name: 'Martin Luther King Day', type: 'other', major: false },
-                { date: 25, name: 'Ekadashi', type: 'hindu', major: false },
-                { date: 26, name: 'India\'s Republic Day', type: 'other', major: true },
-                { date: 29, name: 'Amavasya', type: 'hindu', major: false },
-                { date: 30, name: 'Chand', type: 'hindu', major: false }
-            ];
-        } else if (month === 7 && year === 2025) { // August 2025 (existing data)
-            this.currentMonthEvents = [
-                { date: 2, name: 'Dada J.P. Vaswani\'s 107th Birthday', type: 'sindhi', major: true },
-                { date: 9, name: 'Raksha Bandhan', type: 'hindu', major: true },
-                { date: 12, name: 'Teejri', type: 'sindhi', major: true },
-                { date: 15, name: 'Thadri Big (Vadi Satai)', type: 'sindhi', major: true },
-                { date: 15, name: 'Thadri', type: 'sindhi', major: false },
-                { date: 16, name: 'Krishna Janmashtami', type: 'hindu', major: true },
-                { date: 18, name: 'Pavitropana Ekadashi', type: 'hindu', major: false },
-                { date: 21, name: 'Amavasya (Bhadrapada)', type: 'hindu', major: false },
-                { date: 27, name: 'Rishi Panchami', type: 'hindu', major: true },
-                { date: 31, name: 'Radha Ashtami', type: 'hindu', major: true }
-            ];
-        } else if (month === 1 && year === 2025) { // February 2025
-            this.currentMonthEvents = [
-                { date: 1, name: 'Bhagwanti Navani Birthday', type: 'sindhi', major: true },
-                { date: 2, name: 'Vasant Panchami', type: 'hindu', major: true },
-                { date: 2, name: 'Sarswati Puja', type: 'hindu', major: true },
-                { date: 8, name: 'Ekadashi', type: 'hindu', major: false },
-                { date: 12, name: 'Satya Narayan', type: 'hindu', major: false },
-                { date: 12, name: 'Guru Ravidas Jayanti', type: 'sindhi', major: true },
-                { date: 14, name: 'Valentine\'s Day', type: 'other', major: false },
-                { date: 18, name: 'Dada J.P. Vaswani Thanksgiving Week Feb 18 to 24', type: 'sindhi', major: true },
-                { date: 19, name: 'Chatrapati Shivaji Jayanti', type: 'hindu', major: true },
-                { date: 24, name: 'Ekadashi', type: 'hindu', major: false },
-                { date: 26, name: 'Maha Shivaratri', type: 'hindu', major: true },
-                { date: 27, name: 'Amavasya', type: 'hindu', major: false }
-            ];
+        switch (month) {
+            case 0: // January 2025
+                this.currentMonthEvents = [
+                    { date: 1, name: 'Swami Devprakashji 87th Bdy', type: 'sindhi', major: true },
+                    { date: 1, name: 'Chand', type: 'hindu', major: false },
+                    { date: 3, name: 'Ganesh Chaturthi', type: 'hindu', major: true },
+                    { date: 6, name: 'Guru Gobind Singh Jayanti', type: 'sindhi', major: true },
+                    { date: 10, name: 'Ekadashi', type: 'hindu', major: false },
+                    { date: 12, name: 'Swami Vivekanand Birthday', type: 'sindhi', major: true },
+                    { date: 13, name: 'Lohri (Lal Loi)', type: 'sindhi', major: true },
+                    { date: 13, name: 'Satya Narayan', type: 'hindu', major: false },
+                    { date: 14, name: 'Makarsankranti (Utran)', type: 'hindu', major: true },
+                    { date: 16, name: 'Sadhu T.L. Vaswani 59th Ann.', type: 'sindhi', major: true },
+                    { date: 17, name: 'Ganesh Chaturthi', type: 'hindu', major: true },
+                    { date: 20, name: 'Martin Luther King Day', type: 'other', major: false },
+                    { date: 25, name: 'Ekadashi', type: 'hindu', major: false },
+                    { date: 26, name: 'India\'s Republic Day', type: 'other', major: true },
+                    { date: 29, name: 'Amavasya', type: 'hindu', major: false },
+                    { date: 30, name: 'Chand', type: 'hindu', major: false }
+                ];
+                break;
+                
+            case 1: // February 2025
+                this.currentMonthEvents = [
+                    { date: 1, name: 'Bhagwanti Navani Birthday', type: 'sindhi', major: true },
+                    { date: 1, name: 'Ganesh Chaturthi', type: 'hindu', major: true },
+                    { date: 2, name: 'Vasant Panchami, Sarswati Puja', type: 'hindu', major: true },
+                    { date: 8, name: 'Ekadashi', type: 'hindu', major: false },
+                    { date: 12, name: 'Satya Narayan', type: 'hindu', major: false },
+                    { date: 14, name: 'Saint Valentine\'s Day', type: 'other', major: false },
+                    { date: 18, name: 'Dada J.P. Vaswani Thanksgiving Wk', type: 'sindhi', major: true },
+                    { date: 24, name: 'Ekadashi', type: 'hindu', major: false },
+                    { date: 26, name: 'Maha Shivaratri', type: 'hindu', major: true },
+                    { date: 27, name: 'Amavasya', type: 'hindu', major: false }
+                ];
+                break;
+                
+            case 2: // March 2025
+                this.currentMonthEvents = [
+                    { date: 1, name: 'Chand', type: 'hindu', major: false },
+                    { date: 1, name: 'Kamakrishna Parmhansa Jayanti', type: 'sindhi', major: true },
+                    { date: 10, name: 'Ekadashi', type: 'hindu', major: false },
+                    { date: 13, name: 'Holika Dahan', type: 'hindu', major: true },
+                    { date: 14, name: 'Holi, Satya Narayan', type: 'hindu', major: true },
+                    { date: 17, name: 'Ganesh Chaturthi', type: 'hindu', major: true },
+                    { date: 25, name: 'Ekadashi', type: 'hindu', major: false },
+                    { date: 30, name: 'Chet Chand', type: 'sindhi', major: true }
+                ];
+                break;
+                
+            case 3: // April 2025
+                this.currentMonthEvents = [
+                    { date: 5, name: 'Durga Ashtami (Kamya Puja)', type: 'hindu', major: true },
+                    { date: 6, name: 'Ramnavami', type: 'hindu', major: true },
+                    { date: 8, name: 'Ekadashi', type: 'hindu', major: false },
+                    { date: 11, name: 'Hanuman Jayanti', type: 'hindu', major: true },
+                    { date: 12, name: 'Satya Narayan, Hanuman Jayanti', type: 'hindu', major: true },
+                    { date: 13, name: 'Baisakhi Kanwar Ram Birthday', type: 'sindhi', major: true },
+                    { date: 14, name: 'Vaisakhi', type: 'hindu', major: true },
+                    { date: 20, name: 'Guru Amaidas Jayanti', type: 'sindhi', major: true },
+                    { date: 24, name: 'Ekadashi', type: 'hindu', major: false },
+                    { date: 29, name: 'Chand', type: 'hindu', major: false },
+                    { date: 30, name: 'Akhar Teej (Akshaya Tritiya)', type: 'hindu', major: true }
+                ];
+                break;
+                
+            case 4: // May 2025
+                this.currentMonthEvents = [
+                    { date: 3, name: 'Ganga Saptami', type: 'hindu', major: false },
+                    { date: 8, name: 'Ekadashi', type: 'hindu', major: false },
+                    { date: 11, name: 'Buddha Day, Narasimh Jayanti', type: 'hindu', major: true },
+                    { date: 12, name: 'Satya Narayan', type: 'hindu', major: false },
+                    { date: 14, name: 'Narad Jayanti', type: 'hindu', major: true },
+                    { date: 23, name: 'Ekadashi', type: 'hindu', major: false },
+                    { date: 24, name: 'Vat Savitri Vrat', type: 'hindu', major: true },
+                    { date: 27, name: 'Shani Jayanti, Amavasya', type: 'hindu', major: true },
+                    { date: 28, name: 'Chand', type: 'hindu', major: false }
+                ];
+                break;
+                
+            case 5: // June 2025
+                this.currentMonthEvents = [
+                    { date: 1, name: 'Swami Teooramji\'s 83rd Aniv.', type: 'sindhi', major: true },
+                    { date: 5, name: 'Ganga Dashmi', type: 'hindu', major: false },
+                    { date: 6, name: 'Ekadashi (Nirjala)', type: 'hindu', major: false },
+                    { date: 11, name: 'Satya Narayan, Kabir Jayanti', type: 'hindu', major: true },
+                    { date: 21, name: 'Ekadashi', type: 'hindu', major: false },
+                    { date: 26, name: 'Chand', type: 'hindu', major: false },
+                    { date: 30, name: 'Swami Teooramji\'s 139th Bdy', type: 'sindhi', major: true }
+                ];
+                break;
+                
+            case 6: // July 2025
+                this.currentMonthEvents = [
+                    { date: 6, name: 'Ekadashi', type: 'hindu', major: false },
+                    { date: 10, name: 'Satya Narayan, Guru Purnima', type: 'hindu', major: true },
+                    { date: 12, name: 'Dada J.P. Vaswani\'s 107th Anniversary', type: 'sindhi', major: true },
+                    { date: 14, name: 'Hariyali Somvar Vrat Starts', type: 'hindu', major: false },
+                    { date: 21, name: 'Ekadashi', type: 'hindu', major: false },
+                    { date: 25, name: 'Chand', type: 'hindu', major: false },
+                    { date: 29, name: 'Nag Panchami', type: 'hindu', major: true },
+                    { date: 29, name: 'Swami Saraswatiji\'s 48th Aniv.', type: 'sindhi', major: true },
+                    { date: 31, name: 'Thadri Small (Nandi Satahi)', type: 'sindhi', major: false },
+                    { date: 31, name: 'Tulsi Divas Jayanti', type: 'hindu', major: false }
+                ];
+                break;
+                
+            case 7: // August 2025
+                this.currentMonthEvents = [
+                    { date: 2, name: 'Dada J.P. Vaswani 107th Bdy', type: 'sindhi', major: true },
+                    { date: 4, name: 'Swami Somvar Vrat Ends', type: 'hindu', major: false },
+                    { date: 5, name: 'Ekadashi', type: 'hindu', major: false },
+                    { date: 9, name: 'Raksha Bandhan, Satya Narayan', type: 'hindu', major: true },
+                    { date: 9, name: 'Swami Shanti Prakashji\'s 120th Bdy', type: 'sindhi', major: true },
+                    { date: 12, name: 'Teejri, Ganesh Chaturthi', type: 'sindhi', major: true },
+                    { date: 15, name: 'Thadri Shanti Prakashji\'s 33rd Aniv.', type: 'sindhi', major: true },
+                    { date: 15, name: 'Thadri (Vadi Satai)', type: 'sindhi', major: true },
+                    { date: 16, name: 'Krishna Janmashtami', type: 'hindu', major: true },
+                    { date: 19, name: 'Ekadashi', type: 'hindu', major: false },
+                    { date: 24, name: 'Rishi Panchami', type: 'hindu', major: true },
+                    { date: 25, name: 'Mahalaxmi Sagra Begins, Radhashimi', type: 'hindu', major: true }
+                ];
+                break;
+                
+            case 8: // September 2025
+                this.currentMonthEvents = [
+                    { date: 3, name: 'Ekadashi', type: 'hindu', major: false },
+                    { date: 4, name: 'Vaman Jayanti', type: 'hindu', major: true },
+                    { date: 7, name: 'Ganesh Chaturthi, Ganpati Visarjan', type: 'hindu', major: true },
+                    { date: 7, name: 'Satya Narayan', type: 'hindu', major: false },
+                    { date: 8, name: 'Ganesh Ends', type: 'hindu', major: false },
+                    { date: 14, name: 'Mahalaxmi Sagra Ends', type: 'hindu', major: true },
+                    { date: 17, name: 'Ekadashi', type: 'hindu', major: false },
+                    { date: 21, name: 'Shradh Ends, Amavasya', type: 'hindu', major: false },
+                    { date: 22, name: 'Navratri Starts', type: 'hindu', major: true },
+                    { date: 23, name: 'Chand', type: 'hindu', major: false },
+                    { date: 30, name: 'Durgashtami', type: 'hindu', major: true },
+                    { date: 30, name: 'Swami Teooramji\'s 128th Bdy', type: 'sindhi', major: true }
+                ];
+                break;
+                
+            case 9: // October 2025
+                this.currentMonthEvents = [
+                    { date: 2, name: 'Vijay Dashmi/Dushera', type: 'hindu', major: true },
+                    { date: 3, name: 'Ekadashi', type: 'hindu', major: false },
+                    { date: 6, name: 'Karva Chauth', type: 'hindu', major: true },
+                    { date: 9, name: 'Valmiki Jayanti', type: 'hindu', major: false },
+                    { date: 10, name: 'Ganesh Chaturthi, Ganesh Chaturthi', type: 'hindu', major: true },
+                    { date: 12, name: 'Pandit Mohanal 80th Bdy', type: 'sindhi', major: true },
+                    { date: 17, name: 'Ekadashi', type: 'hindu', major: false },
+                    { date: 18, name: 'Dhanteras', type: 'hindu', major: true },
+                    { date: 19, name: 'Goop Chandas, Ganesh Chaturthi', type: 'hindu', major: true },
+                    { date: 20, name: 'Diwali, Amavasya', type: 'hindu', major: true },
+                    { date: 22, name: 'Annakut Goverdhan Puja', type: 'hindu', major: true },
+                    { date: 23, name: 'Bhai Dooj, Chand', type: 'hindu', major: true },
+                    { date: 25, name: 'Bhagat Kanwar Ram Aniv.', type: 'sindhi', major: true },
+                    { date: 30, name: 'Gopashtami', type: 'hindu', major: false }
+                ];
+                break;
+                
+            case 10: // November 2025
+                this.currentMonthEvents = [
+                    { date: 1, name: 'Satya Viyah, Ekadashi', type: 'hindu', major: false },
+                    { date: 3, name: 'Tulsi Vivah, Satya Narayan', type: 'hindu', major: true },
+                    { date: 5, name: 'Guru Nanak Jayanti', type: 'sindhi', major: true },
+                    { date: 22, name: 'Chand', type: 'hindu', major: false },
+                    { date: 25, name: 'Sadhu T.L. Vaswani 146th Bdy', type: 'sindhi', major: true },
+                    { date: 25, name: 'Ram Sita Wedding', type: 'hindu', major: true }
+                ];
+                break;
+                
+            case 11: // December 2025
+                this.currentMonthEvents = [
+                    { date: 1, name: 'Gita Jayanti, Ekadashi', type: 'hindu', major: true },
+                    { date: 4, name: 'Satya Narayan', type: 'hindu', major: false },
+                    { date: 7, name: 'Master Chander Bday', type: 'sindhi', major: true },
+                    { date: 15, name: 'Ekadashi', type: 'hindu', major: false },
+                    { date: 21, name: 'Chand', type: 'hindu', major: false },
+                    { date: 27, name: 'Pandit Mohanal 7th Aniv.', type: 'sindhi', major: true },
+                    { date: 30, name: 'Ekadashi', type: 'hindu', major: false }
+                ];
+                break;
         }
-        // Future months will be added here as data becomes available
     }
+
     updateCurrentDate() {
         const options = { 
             weekday: 'long', 
@@ -164,7 +310,6 @@ class SindhiTipnoApp {
             }
         });
     }
-
 
     renderCalendar() {
         const monthNames = [
@@ -183,22 +328,30 @@ class SindhiTipnoApp {
         const nextBtn = document.getElementById('nextMonth');
         
         if (prevBtn && nextBtn) {
-            // Enable/disable based on available date range
             const currentYear = this.currentDate.getFullYear();
             const currentMonth = this.currentDate.getMonth();
             
             // Disable previous if we're at January 2025
-            if (currentYear === 2025 && currentMonth === 0) {
-                prevBtn.disabled = true;
-            } else {
-                prevBtn.disabled = false;
-            }
+            prevBtn.disabled = (currentYear === 2025 && currentMonth === 0);
             
             // Disable next if we're at December 2025
-            if (currentYear === 2025 && currentMonth === 11) {
-                nextBtn.disabled = true;
+            nextBtn.disabled = (currentYear === 2025 && currentMonth === 11);
+            
+            // Update button styles
+            if (prevBtn.disabled) {
+                prevBtn.style.opacity = '0.5';
+                prevBtn.style.cursor = 'not-allowed';
             } else {
-                nextBtn.disabled = false;
+                prevBtn.style.opacity = '1';
+                prevBtn.style.cursor = 'pointer';
+            }
+            
+            if (nextBtn.disabled) {
+                nextBtn.style.opacity = '0.5';
+                nextBtn.style.cursor = 'not-allowed';
+            } else {
+                nextBtn.style.opacity = '1';
+                nextBtn.style.cursor = 'pointer';
             }
         }
 
@@ -222,6 +375,11 @@ class SindhiTipnoApp {
             
             const dayElement = this.createDayElement(date, month);
             calendarGrid.appendChild(dayElement);
+        }
+        
+        // Show success message when calendar is loaded
+        if (authSystem && authSystem.showMessage) {
+            authSystem.showMessage(`Calendar loaded for ${monthNames[month]} 2025 with ${this.currentMonthEvents.length} events`, 'success');
         }
     }
 
@@ -275,7 +433,7 @@ class SindhiTipnoApp {
             
             if (remainingCount > 0) {
                 const morePill = document.createElement('div');
-                morePill.className = 'event-pill';
+                morePill.className = 'event-pill more-events';
                 morePill.textContent = `+${remainingCount} more`;
                 morePill.style.background = '#6b7280';
                 morePill.addEventListener('click', (e) => {
@@ -378,6 +536,7 @@ class SindhiTipnoApp {
             }
         });
     }
+
     formatDateKey(date) {
         const year = date.getFullYear();
         const month = String(date.getMonth() + 1).padStart(2, '0');

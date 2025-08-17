@@ -446,7 +446,8 @@ body {
 .calendar-nav:disabled {
     opacity: 0.5;
     cursor: not-allowed;
-    background: rgba(255, 255, 255, 0.1) !important;
+    background: rgba(255, 255, 255, 0.1);
+    pointer-events: none;
 }
 
 .calendar-nav:not(:disabled):hover {
@@ -548,6 +549,15 @@ body {
 
 .event-pill.other {
     background: #6b7280;
+}
+
+.event-pill.more-events {
+    cursor: pointer;
+    transition: opacity 0.2s ease;
+}
+
+.event-pill.more-events:hover {
+    opacity: 0.8;
 }
 
 .event-pill.more-events {
