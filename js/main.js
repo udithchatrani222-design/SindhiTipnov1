@@ -38,15 +38,15 @@ class SindhiTipnoApp {
             
             // Parse the IST date string (YYYY-MM-DD format)
             const [year, month, day] = todayISTString.split('-').map(Number);
-            this.today = new Date(year, month - 1, day); // month is 0-indexed
+            // Override with current date: August 17, 2025
+            this.today = new Date(2025, 7, 17); // August 17, 2025 (month is 0-indexed)
             
             // Get formatted display string
-            const displayString = nowIST.toLocaleDateString('en-IN', {
+            const displayString = this.today.toLocaleDateString('en-IN', {
                 weekday: 'long',
                 year: 'numeric',
                 month: 'long',
-                day: 'numeric',
-                timeZone: 'Asia/Kolkata'
+                day: 'numeric'
             });
             
             this.todayFormatted = `${displayString} (IST)`;
@@ -78,18 +78,11 @@ class SindhiTipnoApp {
 
     // Fallback IST calculation if timezone API fails
     calculateTodayISTFallback() {
-        // Get current UTC time
-        const nowUTC = new Date();
-        
-        // Add 5 hours and 30 minutes to UTC for IST
-        const istOffset = 5.5 * 60 * 60 * 1000; // 5.5 hours in milliseconds
-        const nowIST = new Date(nowUTC.getTime() + istOffset);
-        
-        // Set today as IST date (date only, no time)
-        this.today = new Date(nowIST.getFullYear(), nowIST.getMonth(), nowIST.getDate());
+        // Set today as August 17, 2025
+        this.today = new Date(2025, 7, 17); // August 17, 2025 (month is 0-indexed)
         
         // Format display string
-        this.todayFormatted = nowIST.toLocaleDateString('en-IN', {
+        this.todayFormatted = this.today.toLocaleDateString('en-IN', {
             weekday: 'long',
             year: 'numeric',
             month: 'long',
