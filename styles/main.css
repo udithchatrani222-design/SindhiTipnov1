@@ -406,6 +406,8 @@ body {
     overflow: hidden;
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
     width: 100%;
+    max-width: 100%;
+    margin: 0 auto;
 }
 
 .calendar-header {
@@ -416,6 +418,8 @@ body {
     align-items: center;
     justify-content: space-between;
     gap: 1rem;
+    flex-wrap: nowrap;
+    min-height: 60px;
 }
 
 .calendar-header h2 {
@@ -424,6 +428,10 @@ body {
     flex: 1;
     text-align: center;
     margin: 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    min-width: 0;
 }
 
 .calendar-nav {
@@ -441,6 +449,8 @@ body {
     justify-content: center;
     flex-shrink: 0;
     font-weight: bold;
+    min-width: 40px;
+    min-height: 40px;
 }
 
 .calendar-nav:disabled {
@@ -480,19 +490,23 @@ body {
     display: grid;
     grid-template-columns: repeat(7, 1fr);
     width: 100%;
-    gap: 1px;
+    gap: 0;
     background: #e5e7eb;
+    overflow: hidden;
 }
 
 .calendar-day {
-    min-height: 120px;
+    min-height: 100px;
     background: white;
-    padding: 0.5rem;
+    padding: 0.25rem;
     position: relative;
     display: flex;
     flex-direction: column;
     width: 100%;
     transition: background-color 0.2s ease;
+    border: 1px solid #e5e7eb;
+    box-sizing: border-box;
+    overflow: hidden;
 }
 
 .calendar-day:hover {
@@ -510,11 +524,12 @@ body {
 }
 
 .day-number {
-    font-size: 1.1rem;
+    font-size: 0.9rem;
     font-weight: 700;
     color: #374151;
-    margin-bottom: 0.25rem;
+    margin-bottom: 0.15rem;
     line-height: 1;
+    flex-shrink: 0;
 }
 
 .calendar-day.today .day-number {
@@ -528,20 +543,26 @@ body {
 .day-events {
     display: flex;
     flex-direction: column;
-    gap: 0.2rem;
+    gap: 0.1rem;
     flex: 1;
+    overflow: hidden;
+    min-height: 0;
 }
 
 .event-pill {
     color: white;
-    padding: 0.2rem 0.4rem;
-    border-radius: 8px;
-    font-size: 0.65rem;
+    padding: 0.15rem 0.25rem;
+    border-radius: 4px;
+    font-size: 0.6rem;
     font-weight: 600;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
     line-height: 1.2;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    flex-shrink: 0;
+    max-width: 100%;
 }
 
 .event-pill.sindhi {
@@ -557,40 +578,24 @@ body {
 }
 
 .event-pill.more-events {
-    cursor: pointer;
-    transition: opacity 0.2s ease;
-}
-
-.event-pill.more-events:hover {
-    opacity: 0.8;
-}
-
-.event-pill.more-events {
-    cursor: pointer;
-    transition: opacity 0.2s ease;
-}
-
-.event-pill.more-events:hover {
-    opacity: 0.8;
-}
-
-.event-pill {
-    cursor: pointer;
-    transition: all 0.2s ease;
+    background: #6b7280 !important;
+    font-size: 0.55rem;
+    text-align: center;
 }
 
 .event-pill:hover {
-    transform: scale(1.05);
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    opacity: 0.8;
+    transform: scale(1.02);
 }
 
 .major-festival-star {
     position: absolute;
-    top: 0.3rem;
-    right: 0.3rem;
+    top: 0.2rem;
+    right: 0.2rem;
     color: #fbbf24;
-    font-size: 0.9rem;
+    font-size: 0.7rem;
     text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+    z-index: 1;
 }
 
 /* Event Modal Styles */
@@ -813,44 +818,46 @@ body {
     }
     
     .calendar-header {
-        padding: 1rem;
-        gap: 0.75rem;
+        padding: 0.75rem 1rem;
+        gap: 0.5rem;
     }
     
     .calendar-header h2 {
-        font-size: 1.2rem;
+        font-size: 1rem;
     }
     
     .calendar-nav {
-        width: 32px;
-        height: 32px;
-        font-size: 1rem;
+        width: 36px;
+        height: 36px;
+        font-size: 0.9rem;
     }
     
     .calendar-day {
-        min-height: 90px;
-        padding: 0.3rem;
+        min-height: 80px;
+        padding: 0.2rem;
     }
     
     .day-number {
-        font-size: 1rem;
+        font-size: 0.8rem;
     }
     
     .event-pill {
-        font-size: 0.6rem;
-        padding: 0.15rem 0.3rem;
+        font-size: 0.55rem;
+        padding: 0.1rem 0.2rem;
+        border-radius: 3px;
     }
     
     .major-festival-star {
-        font-size: 0.8rem;
-        top: 0.2rem;
-        right: 0.2rem;
+        font-size: 0.6rem;
+        top: 0.15rem;
+        right: 0.15rem;
     }
     
     .calendar-legend {
         flex-wrap: wrap;
         gap: 1rem;
         padding: 1rem;
+        font-size: 0.75rem;
     }
     
     .event-modal-content {
@@ -865,5 +872,49 @@ body {
     
     .event-modal-header h3 {
         font-size: 1.125rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .calendar-header {
+        padding: 0.5rem;
+        gap: 0.25rem;
+    }
+    
+    .calendar-header h2 {
+        font-size: 0.9rem;
+    }
+    
+    .calendar-nav {
+        width: 32px;
+        height: 32px;
+        font-size: 0.8rem;
+    }
+    
+    .calendar-day {
+        min-height: 70px;
+        padding: 0.15rem;
+    }
+    
+    .day-number {
+        font-size: 0.75rem;
+        margin-bottom: 0.1rem;
+    }
+    
+    .event-pill {
+        font-size: 0.5rem;
+        padding: 0.08rem 0.15rem;
+        line-height: 1.1;
+    }
+    
+    .major-festival-star {
+        font-size: 0.55rem;
+        top: 0.1rem;
+        right: 0.1rem;
+    }
+    
+    .weekday {
+        padding: 0.5rem 0.25rem;
+        font-size: 0.7rem;
     }
 }

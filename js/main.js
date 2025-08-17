@@ -123,6 +123,11 @@ class SindhiTipnoApp {
                 authSystem.showMessage('Navigation limited to year 2025', 'info');
             }
         }
+        
+        // Force re-render to ensure proper layout
+        setTimeout(() => {
+            this.renderCalendar();
+        }, 100);
     }
 
     loadMonthEvents(month, year) {
@@ -432,14 +437,15 @@ class SindhiTipnoApp {
             const eventsContainer = document.createElement('div');
             eventsContainer.className = 'day-events';
             
-            // Show up to 3 events, then "+X more"
-            const visibleEvents = dayEvents.slice(0, 3);
+            // Calculate how many events can fit based on screen size
+            const maxVisibleEvents = this.getMaxVisibleEvents();
+            const visibleEvents = dayEvents.slice(0, maxVisibleEvents);
             const remainingCount = dayEvents.length - visibleEvents.length;
             
             visibleEvents.forEach(event => {
                 const eventPill = document.createElement('div');
                 eventPill.className = `event-pill ${event.type}`;
-                eventPill.textContent = event.name;
+                eventPill.textContent = this.truncateEventName(event.name);
                 eventPill.title = event.name; // Tooltip for full name
                 
                 // Add click handler for event details
@@ -455,7 +461,6 @@ class SindhiTipnoApp {
                 const morePill = document.createElement('div');
                 morePill.className = 'event-pill more-events';
                 morePill.textContent = `+${remainingCount} more`;
-                morePill.style.background = '#6b7280';
                 morePill.addEventListener('click', (e) => {
                     e.stopPropagation();
                     this.showAllDayEvents(dayEvents, date);
@@ -475,6 +480,37 @@ class SindhiTipnoApp {
         }
 
         return dayDiv;
+    }
+
+    getMaxVisibleEvents() {
+        // Determine max events based on screen size
+        const screenWidth = window.innerWidth;
+        if (screenWidth < 480) {
+            return 1; // Very small screens - show only 1 event
+        } else if (screenWidth < 768) {
+            return 2; // Mobile screens - show 2 events
+        } else {
+            return 3; // Desktop screens - show 3 events
+        }
+    }
+
+    truncateEventName(name) {
+        // Truncate event names based on screen size
+        const screenWidth = window.innerWidth;
+        let maxLength;
+        
+        if (screenWidth < 480) {
+            maxLength = 8; // Very short on small screens
+        } else if (screenWidth < 768) {
+            maxLength = 12; // Medium length on mobile
+        } else {
+            maxLength = 20; // Full length on desktop
+        }
+        
+        if (name.length > maxLength) {
+            return name.substring(0, maxLength - 3) + '...';
+        }
+        return name;
     }
 
     showEventDetails(event, date) {
@@ -573,5 +609,21 @@ class SindhiTipnoApp {
 
 // Initialize the app when DOM is loaded
 document.addEventListener('DOMContentLoaded', () => {
-    new SindhiTipnoApp();
+    window.sindhiTipnoApp = new SindhiTipnoApp();
+});
+
+// Handle window resize to update calendar layout
+window.addEventListener('resize', () => {
+    // Debounce resize events
+    clearTimeout(window.resizeTimeout);
+    window.resizeTimeout = setTimeout(() => {
+        // Re-render calendar if it's currently visible
+        const calendarSection = document.getElementById('calendar-section');
+        if (calendarSection && calendarSection.classList.contains('active')) {
+            const app = window.sindhiTipnoApp;
+            if (app && app.renderCalendar) {
+                app.renderCalendar();
+            }
+        }
+    }, 250);
 });
