@@ -19,26 +19,7 @@ class SindhiTipnoApp {
         const previousToday = this.today;
         
         try {
-            // Get current UTC time
-            const nowUTC = new Date();
-            
-            // Offset in minutes for IST (UTC+5:30)
-            const ISTOffsetMinutes = 5.5 * 60;
-            
-            // Calculate IST by adding offset to UTC time
-            const nowIST = new Date(nowUTC.getTime() + (ISTOffsetMinutes * 60 * 1000));
-            
-            // Get the IST date using Asia/Kolkata timezone
-            const todayISTString = nowIST.toLocaleDateString('en-CA', { 
-                timeZone: 'Asia/Kolkata',
-                year: 'numeric',
-                month: '2-digit',
-                day: '2-digit'
-            });
-            
-            // Parse the IST date string (YYYY-MM-DD format)
-            const [year, month, day] = todayISTString.split('-').map(Number);
-            // Override with current date: August 17, 2025
+            // Set today as August 17, 2025 (current date)
             this.today = new Date(2025, 7, 17); // August 17, 2025 (month is 0-indexed)
             
             // Get formatted display string
@@ -183,7 +164,9 @@ class SindhiTipnoApp {
         this.setupNavigation();
         this.setupCalendar();
         this.updateCurrentDate();
-        this.loadMonthEvents(this.currentDate.getMonth(), this.currentDate.getFullYear());
+        // Load events for August 2025 (current month)
+        this.currentDate = new Date(2025, 7, 1); // Set to August 2025
+        this.loadMonthEvents(7, 2025); // Load August 2025 events
         
         // Show current IST date on app load
         if (authSystem && authSystem.showMessage) {
@@ -498,16 +481,20 @@ class SindhiTipnoApp {
     updateCurrentDate() {
         if (!this.today) return;
         
-        // Get formatted IST date string
-        const istDateTime = this.getISTDateTime();
-        const dateString = istDateTime.formatted;
+        // Get formatted date string for August 17, 2025
+        const dateString = this.today.toLocaleDateString('en-IN', {
+            weekday: 'long',
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric'
+        });
         
         const dateElements = document.querySelectorAll('.page-header p');
         dateElements.forEach(element => {
             // Update the today section date display
             if (element.textContent.includes('2025') || 
                 element.textContent.includes('August') || 
-                element.textContent.includes('Friday') ||
+                element.textContent.includes('Sunday') ||
                 element.textContent.includes('IST') ||
                 element.textContent.includes('Navigate')) {
                 element.textContent = `${dateString} (IST)`;
