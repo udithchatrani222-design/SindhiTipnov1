@@ -2,9 +2,10 @@
 class SindhiTipnoApp {
     constructor() {
         this.currentSection = 'today';
-        this.currentDate = new Date(2025, 7); // August 2025
+        this.currentDate = new Date(2025, 0); // January 2025
         this.today = new Date(2025, 7, 15); // Today is August 15, 2025
-        this.festivals = this.loadFestivals();
+        this.festivals = {};
+        this.currentMonthEvents = [];
         
         this.initializeApp();
     }
@@ -13,6 +14,7 @@ class SindhiTipnoApp {
         this.setupNavigation();
         this.setupCalendar();
         this.updateCurrentDate();
+        this.loadMonthEvents(this.currentDate.getMonth(), this.currentDate.getFullYear());
     }
 
     setupNavigation() {
@@ -75,6 +77,7 @@ class SindhiTipnoApp {
         if (prevBtn) {
             prevBtn.addEventListener('click', () => {
                 this.currentDate.setMonth(this.currentDate.getMonth() - 1);
+                this.loadMonthEvents(this.currentDate.getMonth(), this.currentDate.getFullYear());
                 this.renderCalendar();
             });
         }
@@ -82,11 +85,54 @@ class SindhiTipnoApp {
         if (nextBtn) {
             nextBtn.addEventListener('click', () => {
                 this.currentDate.setMonth(this.currentDate.getMonth() + 1);
+                this.loadMonthEvents(this.currentDate.getMonth(), this.currentDate.getFullYear());
                 this.renderCalendar();
             });
         }
     }
 
+    loadMonthEvents(month, year) {
+        // Clear current events
+        this.currentMonthEvents = [];
+        
+        // Load events for the specific month
+        const monthKey = `${year}-${month}`;
+        
+        if (month === 0 && year === 2025) { // January 2025
+            this.currentMonthEvents = [
+                { date: 1, name: 'Satguru Swami Devprakashji Maharaj\'s 87th Birthday', type: 'sindhi', major: true },
+                { date: 1, name: 'Chand', type: 'hindu', major: false },
+                { date: 3, name: 'Ganesh Chaturthi', type: 'hindu', major: true },
+                { date: 6, name: 'Guru Gobind Singh Jayanti', type: 'sindhi', major: true },
+                { date: 10, name: 'Ekadashi', type: 'hindu', major: false },
+                { date: 12, name: 'Swami Vivekanand Birthday', type: 'sindhi', major: true },
+                { date: 13, name: 'Lohri (Lal Loi)', type: 'sindhi', major: true },
+                { date: 13, name: 'Satya Narayan', type: 'hindu', major: false },
+                { date: 14, name: 'Makarsankranti (Utran)', type: 'hindu', major: true },
+                { date: 16, name: 'Sadhu T.L. Vaswani 59th Anniversary', type: 'sindhi', major: true },
+                { date: 17, name: 'Ganesh Chaturthi', type: 'hindu', major: true },
+                { date: 20, name: 'Martin Luther King Day', type: 'other', major: false },
+                { date: 25, name: 'Ekadashi', type: 'hindu', major: false },
+                { date: 26, name: 'India\'s Republic Day', type: 'other', major: true },
+                { date: 29, name: 'Amavasya', type: 'hindu', major: false },
+                { date: 30, name: 'Chand', type: 'hindu', major: false }
+            ];
+        } else if (month === 7 && year === 2025) { // August 2025 (existing data)
+            this.currentMonthEvents = [
+                { date: 2, name: 'Dada J.P. Vaswani\'s 107th Birthday', type: 'sindhi', major: true },
+                { date: 9, name: 'Raksha Bandhan', type: 'hindu', major: true },
+                { date: 12, name: 'Teejri', type: 'sindhi', major: true },
+                { date: 15, name: 'Thadri Big (Vadi Satai)', type: 'sindhi', major: true },
+                { date: 15, name: 'Thadri', type: 'sindhi', major: false },
+                { date: 16, name: 'Krishna Janmashtami', type: 'hindu', major: true },
+                { date: 18, name: 'Pavitropana Ekadashi', type: 'hindu', major: false },
+                { date: 21, name: 'Amavasya (Bhadrapada)', type: 'hindu', major: false },
+                { date: 27, name: 'Rishi Panchami', type: 'hindu', major: true },
+                { date: 31, name: 'Radha Ashtami', type: 'hindu', major: true }
+            ];
+        }
+        // Future months will be added here as data becomes available
+    }
     updateCurrentDate() {
         const options = { 
             weekday: 'long', 
@@ -104,22 +150,6 @@ class SindhiTipnoApp {
         });
     }
 
-    loadFestivals() {
-        return {
-            '2025-08-02': [{ name: 'Dada J.P. Vaswani\'s 107th Birthday', type: 'sindhi', major: true }],
-            '2025-08-09': [{ name: 'Raksha Bandhan', type: 'hindu', major: true }],
-            '2025-08-12': [{ name: 'Teejri', type: 'sindhi', major: true }],
-            '2025-08-15': [
-                { name: 'Thadri Big (Vadi Satai)', type: 'sindhi', major: true },
-                { name: 'Thadri', type: 'sindhi', major: false }
-            ],
-            '2025-08-16': [{ name: 'Krishna Janmashtami', type: 'hindu', major: true }],
-            '2025-08-18': [{ name: 'Pavitropana Ekadashi', type: 'hindu', major: false }],
-            '2025-08-21': [{ name: 'Amavasya (Bhadrapada)', type: 'hindu', major: false }],
-            '2025-08-27': [{ name: 'Rishi Panchami', type: 'hindu', major: true }],
-            '2025-08-31': [{ name: 'Radha Ashtami', type: 'hindu', major: true }]
-        };
-    }
 
     renderCalendar() {
         const monthNames = [
@@ -201,9 +231,9 @@ class SindhiTipnoApp {
         dayNumber.textContent = date.getDate();
         dayDiv.appendChild(dayNumber);
 
-        // Events for this day
-        const dateKey = this.formatDateKey(date);
-        const dayEvents = this.festivals[dateKey] || [];
+        // Events for this day (only for current month)
+        const dayEvents = isCurrentMonth ? 
+            this.currentMonthEvents.filter(event => event.date === date.getDate()) : [];
         
         if (dayEvents.length > 0) {
             const eventsContainer = document.createElement('div');
@@ -218,6 +248,13 @@ class SindhiTipnoApp {
                 eventPill.className = `event-pill ${event.type}`;
                 eventPill.textContent = event.name;
                 eventPill.title = event.name; // Tooltip for full name
+                
+                // Add click handler for event details
+                eventPill.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    this.showEventDetails(event, date);
+                });
+                
                 eventsContainer.appendChild(eventPill);
             });
             
@@ -226,6 +263,10 @@ class SindhiTipnoApp {
                 morePill.className = 'event-pill';
                 morePill.textContent = `+${remainingCount} more`;
                 morePill.style.background = '#6b7280';
+                morePill.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    this.showAllDayEvents(dayEvents, date);
+                });
                 eventsContainer.appendChild(morePill);
             }
             
@@ -243,6 +284,85 @@ class SindhiTipnoApp {
         return dayDiv;
     }
 
+    showEventDetails(event, date) {
+        const modal = document.createElement('div');
+        modal.className = 'event-modal';
+        modal.innerHTML = `
+            <div class="event-modal-content">
+                <div class="event-modal-header">
+                    <h3>${event.name}</h3>
+                    <span class="event-modal-close">&times;</span>
+                </div>
+                <div class="event-modal-body">
+                    <p><strong>Date:</strong> ${date.toLocaleDateString('en-US', { 
+                        weekday: 'long', 
+                        year: 'numeric', 
+                        month: 'long', 
+                        day: 'numeric' 
+                    })}</p>
+                    <p><strong>Type:</strong> ${event.type.charAt(0).toUpperCase() + event.type.slice(1)} ${event.major ? '(Major Festival)' : ''}</p>
+                    ${event.description ? `<p><strong>Description:</strong> ${event.description}</p>` : ''}
+                    ${event.url ? `<p><a href="${event.url}" target="_blank" rel="noopener">Learn More</a></p>` : ''}
+                </div>
+            </div>
+        `;
+        
+        document.body.appendChild(modal);
+        
+        // Close modal handlers
+        const closeBtn = modal.querySelector('.event-modal-close');
+        closeBtn.addEventListener('click', () => {
+            document.body.removeChild(modal);
+        });
+        
+        modal.addEventListener('click', (e) => {
+            if (e.target === modal) {
+                document.body.removeChild(modal);
+            }
+        });
+    }
+
+    showAllDayEvents(events, date) {
+        const modal = document.createElement('div');
+        modal.className = 'event-modal';
+        
+        const eventsList = events.map(event => `
+            <div class="event-item-modal">
+                <span class="event-pill ${event.type}">${event.name}</span>
+                ${event.major ? '<i class="fas fa-star"></i>' : ''}
+            </div>
+        `).join('');
+        
+        modal.innerHTML = `
+            <div class="event-modal-content">
+                <div class="event-modal-header">
+                    <h3>Events on ${date.toLocaleDateString('en-US', { 
+                        weekday: 'long', 
+                        month: 'long', 
+                        day: 'numeric' 
+                    })}</h3>
+                    <span class="event-modal-close">&times;</span>
+                </div>
+                <div class="event-modal-body">
+                    ${eventsList}
+                </div>
+            </div>
+        `;
+        
+        document.body.appendChild(modal);
+        
+        // Close modal handlers
+        const closeBtn = modal.querySelector('.event-modal-close');
+        closeBtn.addEventListener('click', () => {
+            document.body.removeChild(modal);
+        });
+        
+        modal.addEventListener('click', (e) => {
+            if (e.target === modal) {
+                document.body.removeChild(modal);
+            }
+        });
+    }
     formatDateKey(date) {
         const year = date.getFullYear();
         const month = String(date.getMonth() + 1).padStart(2, '0');

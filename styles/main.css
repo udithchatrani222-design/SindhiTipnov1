@@ -546,6 +546,29 @@ body {
     background: #3b82f6;
 }
 
+.event-pill.other {
+    background: #6b7280;
+}
+
+.event-pill.more-events {
+    cursor: pointer;
+    transition: opacity 0.2s ease;
+}
+
+.event-pill.more-events:hover {
+    opacity: 0.8;
+}
+
+.event-pill {
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.event-pill:hover {
+    transform: scale(1.05);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
 .major-festival-star {
     position: absolute;
     top: 0.3rem;
@@ -553,6 +576,120 @@ body {
     color: #fbbf24;
     font-size: 0.9rem;
     text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+}
+
+/* Event Modal Styles */
+.event-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(5px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    animation: fadeIn 0.3s ease-out;
+}
+
+.event-modal-content {
+    background: white;
+    border-radius: 16px;
+    width: 90%;
+    max-width: 500px;
+    max-height: 80vh;
+    overflow-y: auto;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+    animation: slideUp 0.3s ease-out;
+}
+
+@keyframes slideUp {
+    from {
+        opacity: 0;
+        transform: translateY(50px) scale(0.9);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+.event-modal-header {
+    padding: 1.5rem 2rem;
+    border-bottom: 1px solid #e5e7eb;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.event-modal-header h3 {
+    color: #111827;
+    font-size: 1.25rem;
+    font-weight: 600;
+    margin: 0;
+    line-height: 1.4;
+}
+
+.event-modal-close {
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: #9ca3af;
+    cursor: pointer;
+    transition: color 0.2s ease;
+    padding: 0.25rem;
+}
+
+.event-modal-close:hover {
+    color: #374151;
+}
+
+.event-modal-body {
+    padding: 1.5rem 2rem;
+}
+
+.event-modal-body p {
+    margin-bottom: 1rem;
+    line-height: 1.6;
+}
+
+.event-modal-body p:last-child {
+    margin-bottom: 0;
+}
+
+.event-modal-body a {
+    color: #f97316;
+    text-decoration: none;
+    font-weight: 500;
+}
+
+.event-modal-body a:hover {
+    text-decoration: underline;
+}
+
+.event-item-modal {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 0.75rem;
+    padding: 0.5rem;
+    background: #f9fafb;
+    border-radius: 8px;
+}
+
+.event-item-modal:last-child {
+    margin-bottom: 0;
+}
+
+.event-item-modal .event-pill {
+    margin: 0;
+    flex: 1;
+}
+
+.event-item-modal i {
+    color: #fbbf24;
+    font-size: 0.875rem;
 }
 
 .calendar-legend {
@@ -587,6 +724,10 @@ body {
 
 .legend-dot.hindu {
     background: #3b82f6;
+}
+
+.legend-dot.other {
+    background: #6b7280;
 }
 
 .legend-star {
@@ -695,5 +836,19 @@ body {
         flex-wrap: wrap;
         gap: 1rem;
         padding: 1rem;
+    }
+    
+    .event-modal-content {
+        width: 95%;
+        margin: 1rem;
+    }
+    
+    .event-modal-header,
+    .event-modal-body {
+        padding: 1rem 1.5rem;
+    }
+    
+    .event-modal-header h3 {
+        font-size: 1.125rem;
     }
 }
