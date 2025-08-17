@@ -130,6 +130,21 @@ class SindhiTipnoApp {
                 { date: 27, name: 'Rishi Panchami', type: 'hindu', major: true },
                 { date: 31, name: 'Radha Ashtami', type: 'hindu', major: true }
             ];
+        } else if (month === 1 && year === 2025) { // February 2025
+            this.currentMonthEvents = [
+                { date: 1, name: 'Bhagwanti Navani Birthday', type: 'sindhi', major: true },
+                { date: 2, name: 'Vasant Panchami', type: 'hindu', major: true },
+                { date: 2, name: 'Sarswati Puja', type: 'hindu', major: true },
+                { date: 8, name: 'Ekadashi', type: 'hindu', major: false },
+                { date: 12, name: 'Satya Narayan', type: 'hindu', major: false },
+                { date: 12, name: 'Guru Ravidas Jayanti', type: 'sindhi', major: true },
+                { date: 14, name: 'Valentine\'s Day', type: 'other', major: false },
+                { date: 18, name: 'Dada J.P. Vaswani Thanksgiving Week Feb 18 to 24', type: 'sindhi', major: true },
+                { date: 19, name: 'Chatrapati Shivaji Jayanti', type: 'hindu', major: true },
+                { date: 24, name: 'Ekadashi', type: 'hindu', major: false },
+                { date: 26, name: 'Maha Shivaratri', type: 'hindu', major: true },
+                { date: 27, name: 'Amavasya', type: 'hindu', major: false }
+            ];
         }
         // Future months will be added here as data becomes available
     }
