@@ -444,14 +444,19 @@ body {
 }
 
 .calendar-nav:disabled {
-    opacity: 0.5;
+    opacity: 0.5 !important;
     cursor: not-allowed;
-    background: rgba(255, 255, 255, 0.1);
+    background: rgba(255, 255, 255, 0.1) !important;
     pointer-events: none;
 }
 
 .calendar-nav:not(:disabled):hover {
     background: rgba(255, 255, 255, 0.3);
+}
+
+.calendar-nav:not(:disabled):active {
+    background: rgba(255, 255, 255, 0.4);
+    transform: scale(0.95);
 }
 
 .calendar-weekdays {

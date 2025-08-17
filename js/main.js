@@ -75,31 +75,53 @@ class SindhiTipnoApp {
         const nextBtn = document.getElementById('nextMonth');
 
         if (prevBtn) {
-            prevBtn.addEventListener('click', (e) => {
-                e.preventDefault();
-                e.stopPropagation();
+            prevBtn.addEventListener('click', () => {
                 this.navigateMonth(-1);
             });
         }
 
         if (nextBtn) {
-            nextBtn.addEventListener('click', (e) => {
-                e.preventDefault();
-                e.stopPropagation();
+            nextBtn.addEventListener('click', () => {
                 this.navigateMonth(1);
             });
         }
     }
 
     navigateMonth(direction) {
-        const newDate = new Date(this.currentDate);
-        newDate.setMonth(newDate.getMonth() + direction);
+        const currentMonth = this.currentDate.getMonth();
+        const currentYear = this.currentDate.getFullYear();
         
-        // Ensure we stay within 2025
-        if (newDate.getFullYear() === 2025) {
-            this.currentDate = newDate;
-            this.loadMonthEvents(this.currentDate.getMonth(), this.currentDate.getFullYear());
+        let newMonth = currentMonth + direction;
+        let newYear = currentYear;
+        
+        // Handle year boundaries
+        if (newMonth < 0) {
+            newMonth = 11;
+            newYear--;
+        } else if (newMonth > 11) {
+            newMonth = 0;
+            newYear++;
+        }
+        
+        // Only allow navigation within 2025
+        if (newYear === 2025) {
+            this.currentDate = new Date(newYear, newMonth, 1);
+            this.loadMonthEvents(newMonth, newYear);
             this.renderCalendar();
+            
+            // Show success message
+            if (authSystem && authSystem.showMessage) {
+                const monthNames = [
+                    'January', 'February', 'March', 'April', 'May', 'June',
+                    'July', 'August', 'September', 'October', 'November', 'December'
+                ];
+                authSystem.showMessage(`Navigated to ${monthNames[newMonth]} 2025`, 'success');
+            }
+        } else {
+            // Show message if trying to navigate outside 2025
+            if (authSystem && authSystem.showMessage) {
+                authSystem.showMessage('Navigation limited to year 2025', 'info');
+            }
         }
     }
 
@@ -331,25 +353,23 @@ class SindhiTipnoApp {
             const currentYear = this.currentDate.getFullYear();
             const currentMonth = this.currentDate.getMonth();
             
-            // Disable previous if we're at January 2025
-            prevBtn.disabled = (currentYear === 2025 && currentMonth === 0);
-            
-            // Disable next if we're at December 2025
-            nextBtn.disabled = (currentYear === 2025 && currentMonth === 11);
-            
-            // Update button styles
-            if (prevBtn.disabled) {
+            // Update button states
+            if (currentYear === 2025 && currentMonth === 0) {
+                prevBtn.disabled = true;
                 prevBtn.style.opacity = '0.5';
                 prevBtn.style.cursor = 'not-allowed';
             } else {
+                prevBtn.disabled = false;
                 prevBtn.style.opacity = '1';
                 prevBtn.style.cursor = 'pointer';
             }
             
-            if (nextBtn.disabled) {
+            if (currentYear === 2025 && currentMonth === 11) {
+                nextBtn.disabled = true;
                 nextBtn.style.opacity = '0.5';
                 nextBtn.style.cursor = 'not-allowed';
             } else {
+                nextBtn.disabled = false;
                 nextBtn.style.opacity = '1';
                 nextBtn.style.cursor = 'pointer';
             }
