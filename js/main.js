@@ -3,11 +3,70 @@ class SindhiTipnoApp {
     constructor() {
         this.currentSection = 'today';
         this.currentDate = new Date(2025, 0); // January 2025
-        this.today = new Date(2025, 7, 15); // Today is August 15, 2025
+        this.today = this.getISTDate(); // Get current IST date
         this.festivals = {};
         this.currentMonthEvents = [];
         
         this.initializeApp();
+        this.startDailyUpdate(); // Start automatic daily updates
+    }
+
+    // Get current date in Indian Standard Time (IST, UTC+5:30)
+    getISTDate() {
+        const now = new Date();
+        // Convert to IST by adding 5 hours 30 minutes to UTC
+        const istOffset = 5.5 * 60 * 60 * 1000; // 5.5 hours in milliseconds
+        const utc = now.getTime() + (now.getTimezoneOffset() * 60 * 1000);
+        const istTime = new Date(utc + istOffset);
+        return istTime;
+    }
+
+    // Start automatic daily updates at midnight IST
+    startDailyUpdate() {
+        const updateToday = () => {
+            this.today = this.getISTDate();
+            this.updateCurrentDate();
+            
+            // Re-render calendar if it's currently visible to update "today" highlighting
+            if (this.currentSection === 'calendar') {
+                this.renderCalendar();
+            }
+            
+            // Show notification that date has updated
+            if (authSystem && authSystem.showMessage) {
+                const dateString = this.today.toLocaleDateString('en-IN', { 
+                    weekday: 'long', 
+                    year: 'numeric', 
+                    month: 'long', 
+                    day: 'numeric',
+                    timeZone: 'Asia/Kolkata'
+                });
+                authSystem.showMessage(`Date updated to ${dateString} (IST)`, 'info');
+            }
+        };
+
+        // Calculate milliseconds until next midnight IST
+        const now = this.getISTDate();
+        const tomorrow = new Date(now);
+        tomorrow.setDate(tomorrow.getDate() + 1);
+        tomorrow.setHours(0, 0, 0, 0);
+        const msUntilMidnight = tomorrow.getTime() - now.getTime();
+
+        // Set timeout for first update at midnight, then repeat every 24 hours
+        setTimeout(() => {
+            updateToday();
+            setInterval(updateToday, 24 * 60 * 60 * 1000); // Every 24 hours
+        }, msUntilMidnight);
+
+        // Also update every hour to handle timezone changes or system clock adjustments
+        setInterval(() => {
+            const newToday = this.getISTDate();
+            if (newToday.getDate() !== this.today.getDate() || 
+                newToday.getMonth() !== this.today.getMonth() || 
+                newToday.getFullYear() !== this.today.getFullYear()) {
+                updateToday();
+            }
+        }, 60 * 60 * 1000); // Every hour
     }
 
     initializeApp() {
@@ -15,6 +74,18 @@ class SindhiTipnoApp {
         this.setupCalendar();
         this.updateCurrentDate();
         this.loadMonthEvents(this.currentDate.getMonth(), this.currentDate.getFullYear());
+        
+        // Show current IST time on app load
+        if (authSystem && authSystem.showMessage) {
+            const dateString = this.today.toLocaleDateString('en-IN', { 
+                weekday: 'long', 
+                year: 'numeric', 
+                month: 'long', 
+                day: 'numeric',
+                timeZone: 'Asia/Kolkata'
+            });
+            authSystem.showMessage(`Today: ${dateString} (IST)`, 'success');
+        }
     }
 
     setupNavigation() {
@@ -322,18 +393,21 @@ class SindhiTipnoApp {
     }
 
     updateCurrentDate() {
-        const options = { 
+        // Use IST timezone for date display
+        const options = {
             weekday: 'long', 
             year: 'numeric', 
             month: 'long', 
-            day: 'numeric' 
+            day: 'numeric',
+            timeZone: 'Asia/Kolkata' // Force IST timezone
         };
-        const dateString = this.today.toLocaleDateString('en-US', options);
+        const dateString = this.today.toLocaleDateString('en-IN', options);
         
         const dateElements = document.querySelectorAll('.page-header p');
         dateElements.forEach(element => {
-            if (element.textContent.includes('2025')) {
-                element.textContent = dateString;
+            // Update both the today section and any other date displays
+            if (element.textContent.includes('2025') || element.textContent.includes('August') || element.textContent.includes('Friday')) {
+                element.textContent = `${dateString} (IST)`;
             }
         });
     }
@@ -523,11 +597,12 @@ class SindhiTipnoApp {
                     <span class="event-modal-close">&times;</span>
                 </div>
                 <div class="event-modal-body">
-                    <p><strong>Date:</strong> ${date.toLocaleDateString('en-US', { 
+                    <p><strong>Date:</strong> ${date.toLocaleDateString('en-IN', { 
                         weekday: 'long', 
                         year: 'numeric', 
                         month: 'long', 
-                        day: 'numeric' 
+                        day: 'numeric',
+                        timeZone: 'Asia/Kolkata'
                     })}</p>
                     <p><strong>Type:</strong> ${event.type.charAt(0).toUpperCase() + event.type.slice(1)} ${event.major ? '(Major Festival)' : ''}</p>
                     ${event.description ? `<p><strong>Description:</strong> ${event.description}</p>` : ''}
@@ -565,10 +640,11 @@ class SindhiTipnoApp {
         modal.innerHTML = `
             <div class="event-modal-content">
                 <div class="event-modal-header">
-                    <h3>Events on ${date.toLocaleDateString('en-US', { 
+                    <h3>Events on ${date.toLocaleDateString('en-IN', { 
                         weekday: 'long', 
                         month: 'long', 
-                        day: 'numeric' 
+                        day: 'numeric',
+                        timeZone: 'Asia/Kolkata'
                     })}</h3>
                     <span class="event-modal-close">&times;</span>
                 </div>
@@ -601,9 +677,22 @@ class SindhiTipnoApp {
     }
 
     isSameDay(date1, date2) {
-        return date1.getFullYear() === date2.getFullYear() &&
-               date1.getMonth() === date2.getMonth() &&
-               date1.getDate() === date2.getDate();
+        // Compare dates in IST timezone
+        const getISTDateParts = (date) => {
+            const istDate = new Date(date.toLocaleString("en-US", {timeZone: "Asia/Kolkata"}));
+            return {
+                year: istDate.getFullYear(),
+                month: istDate.getMonth(),
+                date: istDate.getDate()
+            };
+        };
+        
+        const date1IST = getISTDateParts(date1);
+        const date2IST = getISTDateParts(date2);
+        
+        return date1IST.year === date2IST.year &&
+               date1IST.month === date2IST.month &&
+               date1IST.date === date2IST.date;
     }
 }
 
