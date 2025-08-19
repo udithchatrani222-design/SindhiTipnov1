@@ -2,7 +2,7 @@
 class SindhiTipnoApp {
     constructor() {
         this.currentSection = 'today';
-        this.currentDate = new Date(2025, 7); // Start with August 2025
+        this.currentDate = new Date(2025, 7, 1); // Start with August 2025
         this.today = null; // Will be set by calculateTodayIST()
         this.festivals = {};
         this.currentMonthEvents = [];
@@ -18,23 +18,35 @@ class SindhiTipnoApp {
     calculateTodayIST() {
         const previousToday = this.today;
         
+        // Get current UTC time
+        const nowUTC = new Date();
+        
+        // Offset in minutes for IST (UTC+5:30)
+        const ISTOffsetMinutes = 5.5 * 60;
+        
+        // Calculate IST by adding offset to UTC time
+        const nowIST = new Date(nowUTC.getTime() + (ISTOffsetMinutes * 60 * 1000));
+        
+        // Set today to the IST date
+        this.today = new Date(nowIST.getFullYear(), nowIST.getMonth(), nowIST.getDate());
+        
+        // Format the display string with IST timezone
         try {
-            // Set today as August 17, 2025 (current date)
-            this.today = new Date(2025, 7, 17); // August 17, 2025 (month is 0-indexed)
-            
-            // Get formatted display string
-            const displayString = this.today.toLocaleDateString('en-IN', {
+            this.todayFormatted = nowIST.toLocaleDateString('en-IN', {
+                weekday: 'long',
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric',
+                timeZone: 'Asia/Kolkata'
+            }) + ' (IST)';
+        } catch (error) {
+            // Fallback formatting if timezone API fails
+            this.todayFormatted = this.today.toLocaleDateString('en-IN', {
                 weekday: 'long',
                 year: 'numeric',
                 month: 'long',
                 day: 'numeric'
-            });
-            
-            this.todayFormatted = `${displayString} (IST)`;
-            
-        } catch (error) {
-            console.warn('Timezone API failed, using manual IST calculation:', error);
-            this.calculateTodayISTFallback();
+            }) + ' (IST)';
         }
         
         // Check if date has changed
@@ -50,7 +62,7 @@ class SindhiTipnoApp {
             
             // Show notification about date update (only after initial load)
             if (authSystem && authSystem.showMessage && previousToday) {
-                authSystem.showMessage(`Date updated to ${this.todayFormatted}`, 'success');
+                authSystem.showMessage(`Date updated to ${this.todayFormatted}`, 'info');
             }
         }
         
@@ -59,8 +71,14 @@ class SindhiTipnoApp {
 
     // Fallback IST calculation if timezone API fails
     calculateTodayISTFallback() {
-        // Set today as August 17, 2025
-        this.today = new Date(2025, 7, 17); // August 17, 2025 (month is 0-indexed)
+        // Get current UTC time
+        const nowUTC = new Date();
+        
+        // Add 5.5 hours (IST offset) to UTC
+        const nowIST = new Date(nowUTC.getTime() + (5.5 * 60 * 60 * 1000));
+        
+        // Set today to the IST date
+        this.today = new Date(nowIST.getFullYear(), nowIST.getMonth(), nowIST.getDate());
         
         // Format display string
         this.todayFormatted = this.today.toLocaleDateString('en-IN', {
@@ -170,7 +188,7 @@ class SindhiTipnoApp {
         
         // Show current IST date on app load
         if (authSystem && authSystem.showMessage) {
-            authSystem.showMessage(`Today: ${this.todayFormatted}`, 'success');
+            authSystem.showMessage(`Today: ${this.todayFormatted}`, 'info');
         }
     }
 
@@ -481,24 +499,23 @@ class SindhiTipnoApp {
     updateCurrentDate() {
         if (!this.today) return;
         
-        // Get formatted date string for August 17, 2025
-        const dateString = this.today.toLocaleDateString('en-IN', {
-            weekday: 'long',
-            year: 'numeric',
-            month: 'long',
-            day: 'numeric'
-        });
+        // Use the pre-formatted IST date string
+        const dateString = this.todayFormatted;
         
+        // Update all page headers with the IST date
         const dateElements = document.querySelectorAll('.page-header p');
         dateElements.forEach(element => {
-            // Update the today section date display
-            if (element.textContent.includes('2025') || 
-                element.textContent.includes('August') || 
-                element.textContent.includes('Sunday') ||
-                element.textContent.includes('IST') ||
-                element.textContent.includes('Navigate')) {
-                element.textContent = `${dateString} (IST)`;
+            // Update the today section date display (first page header)
+            const parentSection = element.closest('.content-section');
+            if (parentSection && parentSection.id === 'today-section') {
+                element.textContent = dateString;
             }
+        });
+        
+        // Also update any other date displays that should show today's date
+        const todayHeaders = document.querySelectorAll('#today-section .page-header p');
+        todayHeaders.forEach(element => {
+            element.textContent = dateString;
         });
     }
 
