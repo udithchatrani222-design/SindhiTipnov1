@@ -7,6 +7,9 @@ class SindhiTipnoApp {
         this.festivals = {};
         this.currentMonthEvents = [];
         this.istUpdateTimer = null;
+        this.contentUpdated = false; // Flag to track content updates
+        this.adminSectionActive = false; // Flag to track admin section usage
+        this.currentBhajansContent = []; // Cache current bhajans content
         
         // Calculate today in IST first
         this.calculateTodayIST();
@@ -242,6 +245,14 @@ class SindhiTipnoApp {
         if (sectionName === 'admin' && authSystem.currentUser && authSystem.currentUser.type === 'admin') {
             authSystem.updateContentLibrary();
             authSystem.updateUserManagement();
+        }
+        
+        // Initialize bhajans section if switching to bhajans section
+        if (sectionName === 'bhajans') {
+            this.initializeBhajansSection();
+        } else if (sectionName === 'admin' && authSystem.currentUser && authSystem.currentUser.type === 'admin') {
+            // When switching to admin, mark that we might upload content
+            this.adminSectionActive = true;
         }
     }
 
@@ -825,6 +836,159 @@ class SindhiTipnoApp {
         if (this.istUpdateTimer) {
             clearInterval(this.istUpdateTimer);
             this.istUpdateTimer = null;
+        }
+        
+        // Cleanup audio player
+        if (this.audioPlayer) {
+            this.audioPlayer.cleanup();
+        }
+        
+        // Clear any content update flags
+        this.contentUpdated = false;
+        this.adminSectionActive = false;
+    }
+    
+    // Initialize Bhajans Section
+    initializeBhajansSection() {
+        if (!this.audioPlayer) {
+            this.audioPlayer = new AudioPlayer();
+        }
+        this.loadBhajansContent();
+        
+        // Reset content updated flag since we're loading fresh content
+        this.contentUpdated = false;
+    }
+    
+    // Load Bhajans Content
+    loadBhajansContent() {
+        const content = JSON.parse(localStorage.getItem('sindhiTipnoContent')) || [];
+        const contentGrid = document.getElementById('bhajansContentGrid');
+        const emptyState = document.getElementById('bhajansEmptyState');
+        const audioPlayerContainer = document.getElementById('audioPlayerContainer');
+        
+        // Always ensure we have the latest content
+        this.currentBhajansContent = content;
+        
+        if (content.length === 0) {
+            contentGrid.style.display = 'none';
+            emptyState.style.display = 'none';
+            audioPlayerContainer.style.display = 'none';
+        } else {
+            contentGrid.style.display = 'grid';
+            emptyState.style.display = 'none';
+            audioPlayerContainer.style.display = 'block';
+            
+            this.renderBhajansContent(content);
+            this.setupContentFilters();
+        }
+        
+        // Show success message when content is loaded/updated
+        if (content.length > 0 && this.contentUpdated) {
+            if (authSystem && authSystem.showMessage) {
+                authSystem.showMessage(`Bhajans library updated with ${content.length} items`, 'success');
+            }
+            this.contentUpdated = false;
+        }
+    }
+    
+    // Render Bhajans Content
+    renderBhajansContent(content) {
+        const contentGrid = document.getElementById('bhajansContentGrid');
+        
+        contentGrid.innerHTML = content.map((item, index) => `
+            <div class="content-card" data-content-id="${item.id}" data-index="${index}">
+                <div class="content-card-header">
+                    <div class="content-icon">
+                        <i class="fas ${item.type === 'aarti' ? 'fa-pray' : 'fa-music'}"></i>
+                    </div>
+                    <div class="content-info">
+                        <h4>${item.title}</h4>
+                        <span class="content-type-badge ${item.type}">${item.type}</span>
+                    </div>
+                </div>
+                ${item.description ? `<div class="content-description">${item.description}</div>` : ''}
+                <div class="content-meta">
+                    <span>Uploaded: ${new Date(item.uploadedAt).toLocaleDateString()}</span>
+                    <div class="play-indicator" style="display: none;">
+                        <i class="fas fa-volume-up"></i>
+                        <span>Playing</span>
+                    </div>
+                </div>
+            </div>
+        `).join('');
+        
+        // Add click listeners
+        document.querySelectorAll('.content-card').forEach(card => {
+            card.addEventListener('click', () => {
+                const contentId = card.getAttribute('data-content-id');
+                const index = parseInt(card.getAttribute('data-index'));
+                this.playContent(contentId, index, content);
+            });
+        });
+    }
+    
+    // Setup Content Filters
+    setupContentFilters() {
+        const filterBtns = document.querySelectorAll('.filter-btn');
+        
+        filterBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                // Update active filter
+                filterBtns.forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                
+                const filter = btn.getAttribute('data-filter');
+                this.filterContent(filter);
+            });
+        });
+    }
+    
+    // Filter Content
+    filterContent(filter) {
+        const contentCards = document.querySelectorAll('.content-card');
+        
+        contentCards.forEach(card => {
+            const contentId = card.getAttribute('data-content-id');
+            const item = this.currentBhajansContent.find(c => c.id === contentId);
+            
+            if (filter === 'all' || (item && item.type === filter)) {
+                card.style.display = 'block';
+            } else {
+                card.style.display = 'none';
+            }
+        });
+    }
+    
+    // Play Content
+    playContent(contentId, index, contentList) {
+        const content = contentList.find(c => c.id === contentId);
+        if (content && this.audioPlayer) {
+            // Create a mock audio URL (in real app, this would be the actual file URL)
+            const audioUrl = `data:audio/mp3;base64,${content.fileName}`;
+            
+            this.audioPlayer.loadPlaylist(contentList, index);
+            this.audioPlayer.play();
+            
+            // Update UI
+            this.updatePlayingState(contentId);
+        }
+    }
+    
+    // Update Playing State
+    updatePlayingState(playingId) {
+        // Remove playing state from all cards
+        document.querySelectorAll('.content-card').forEach(card => {
+            card.classList.remove('playing');
+            card.querySelector('.play-indicator').style.display = 'none';
+        });
+        
+        // Add playing state to current card
+        if (playingId) {
+            const playingCard = document.querySelector(`[data-content-id="${playingId}"]`);
+            if (playingCard) {
+                playingCard.classList.add('playing');
+                playingCard.querySelector('.play-indicator').style.display = 'flex';
+            }
         }
     }
 }
