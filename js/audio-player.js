@@ -261,7 +261,7 @@ class AudioPlayer {
         if (track.fileData) {
             // If we have actual file data, create a blob URL
             try {
-                const blob = new Blob([track.fileData], { type: 'audio/mpeg' });
+                const blob = new Blob([track.fileData], { type: track.fileType || 'audio/mpeg' });
                 return URL.createObjectURL(blob);
             } catch (error) {
                 console.warn('Could not create blob URL:', error);
