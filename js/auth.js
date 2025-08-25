@@ -248,6 +248,16 @@ class AuthSystem {
         } else {
             adminNavItem.style.display = 'none';
         }
+        
+        // Show/hide admin-only elements
+        const adminOnlyElements = document.querySelectorAll('.admin-only');
+        adminOnlyElements.forEach(element => {
+            if (this.currentUser.type === 'admin') {
+                element.style.display = element.classList.contains('sync-btn') ? 'flex' : 'block';
+            } else {
+                element.style.display = 'none';
+            }
+        });
     }
 
     showLoginModal() {

@@ -941,6 +941,51 @@ body {
     color: #111827;
 }
 
+.library-controls {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    flex-wrap: wrap;
+}
+
+.sync-btn {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 1rem;
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-size: 0.875rem;
+}
+
+.sync-btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+}
+
+.sync-btn i {
+    font-size: 0.875rem;
+}
+
+.sync-btn.syncing {
+    background: #6b7280;
+    cursor: not-allowed;
+}
+
+.sync-btn.syncing i {
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+
 .filter-tabs {
     display: flex;
     gap: 0.5rem;
@@ -1109,6 +1154,16 @@ body {
     .library-header {
         flex-direction: column;
         align-items: flex-start;
+    }
+    
+    .library-controls {
+        width: 100%;
+        justify-content: space-between;
+    }
+    
+    .filter-tabs {
+        width: auto;
+        justify-content: center;
     }
     
     .content-grid {

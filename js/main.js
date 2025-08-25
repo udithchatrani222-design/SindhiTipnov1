@@ -254,6 +254,18 @@ class SindhiTipnoApp {
             // When switching to admin, mark that we might upload content
             this.adminSectionActive = true;
         }
+        
+        // Update admin-only elements visibility when switching sections
+        if (authSystem && authSystem.currentUser && authSystem.currentUser.type === 'admin') {
+            const adminOnlyElements = document.querySelectorAll('.admin-only');
+            adminOnlyElements.forEach(element => {
+                if (sectionName === 'bhajans' && element.id === 'syncContentBtn') {
+                    element.style.display = 'flex';
+                } else if (element.id === 'syncContentBtn') {
+                    element.style.display = 'none';
+                }
+            });
+        }
     }
 
     setupCalendar() {
@@ -853,6 +865,10 @@ class SindhiTipnoApp {
         if (!this.audioPlayer) {
             this.audioPlayer = new AudioPlayer();
         }
+        
+        // Setup sync button for admin users
+        this.setupSyncButton();
+        
         this.loadBhajansContent();
         
         // Reset content updated flag since we're loading fresh content
@@ -869,13 +885,15 @@ class SindhiTipnoApp {
         // Always ensure we have the latest content
         this.currentBhajansContent = content;
         
+        console.log('Loading bhajans content:', content.length, 'items');
+        
         if (content.length === 0) {
-            contentGrid.style.display = 'none';
-            emptyState.style.display = 'none';
+            if (contentGrid) contentGrid.style.display = 'none';
+            if (emptyState) emptyState.style.display = 'block';
             audioPlayerContainer.style.display = 'none';
         } else {
-            contentGrid.style.display = 'grid';
-            emptyState.style.display = 'none';
+            if (contentGrid) contentGrid.style.display = 'grid';
+            if (emptyState) emptyState.style.display = 'none';
             audioPlayerContainer.style.display = 'block';
             
             this.renderBhajansContent(content);
@@ -941,6 +959,52 @@ class SindhiTipnoApp {
                 this.filterContent(filter);
             });
         });
+    }
+    
+    // Setup Sync Button
+    setupSyncButton() {
+        const syncBtn = document.getElementById('syncContentBtn');
+        if (!syncBtn) return;
+        
+        // Show sync button only for admin users
+        if (authSystem && authSystem.currentUser && authSystem.currentUser.type === 'admin') {
+            syncBtn.style.display = 'flex';
+        } else {
+            syncBtn.style.display = 'none';
+        }
+        
+        // Add click handler
+        syncBtn.addEventListener('click', () => {
+            this.syncBhajansContent();
+        });
+    }
+    
+    // Sync Bhajans Content
+    syncBhajansContent() {
+        const syncBtn = document.getElementById('syncContentBtn');
+        if (!syncBtn) return;
+        
+        // Show syncing state
+        syncBtn.classList.add('syncing');
+        syncBtn.innerHTML = '<i class="fas fa-sync-alt"></i> Syncing...';
+        syncBtn.disabled = true;
+        
+        // Simulate sync process
+        setTimeout(() => {
+            // Force reload content
+            this.loadBhajansContent();
+            
+            // Reset button state
+            syncBtn.classList.remove('syncing');
+            syncBtn.innerHTML = '<i class="fas fa-sync-alt"></i> Sync Content';
+            syncBtn.disabled = false;
+            
+            // Show success message
+            const content = JSON.parse(localStorage.getItem('sindhiTipnoContent')) || [];
+            if (authSystem && authSystem.showMessage) {
+                authSystem.showMessage(`Content synced successfully! ${content.length} items loaded.`, 'success');
+            }
+        }, 1000);
     }
     
     // Filter Content
