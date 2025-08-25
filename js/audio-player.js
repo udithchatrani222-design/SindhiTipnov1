@@ -256,7 +256,7 @@ class AudioPlayer {
     
     createAudioUrl(track) {
         // Return the data URL directly if available
-        if (track.fileData && track.fileData.startsWith('data:')) {
+        if (track.fileData && typeof track.fileData === 'string' && track.fileData.startsWith('data:')) {
             return track.fileData;
         }
         
