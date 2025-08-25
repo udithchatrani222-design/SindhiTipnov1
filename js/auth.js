@@ -293,36 +293,50 @@ class AuthSystem {
             return;
         }
 
-        // Simulate upload (in real app, this would upload to server)
-        const content = {
-            id: Date.now().toString(),
-            title: title,
-            type: type,
-            fileName: audioFile.name,
-            description: description,
-            uploadedAt: new Date().toISOString(),
-            uploadedBy: this.currentUser.identifier
-        };
+        // Read file as ArrayBuffer for better audio handling
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            const content = {
+                id: Date.now().toString(),
+                title: title,
+                type: type,
+                fileName: audioFile.name,
+                fileSize: audioFile.size,
+                fileType: audioFile.type,
+                description: description,
+                uploadedAt: new Date().toISOString(),
+                uploadedBy: this.currentUser.identifier,
+                // Store file data for playback (in production, this would be a URL)
+                fileData: e.target.result
+            };
 
-        // Save to localStorage (in real app, this would be saved to database)
-        const existingContent = JSON.parse(localStorage.getItem('sindhiTipnoContent')) || [];
-        existingContent.push(content);
-        localStorage.setItem('sindhiTipnoContent', JSON.stringify(existingContent));
+            // Save to localStorage (in real app, this would be saved to database)
+            const existingContent = JSON.parse(localStorage.getItem('sindhiTipnoContent')) || [];
+            existingContent.push(content);
+            localStorage.setItem('sindhiTipnoContent', JSON.stringify(existingContent));
 
-        this.showMessage('Content uploaded successfully!', 'success');
-        this.clearUploadForm();
-        this.updateContentLibrary();
-        
-        // Auto-sync with Bhajans section if it's currently active or has been initialized
-        if (window.sindhiTipnoApp) {
-            // Refresh Bhajans content if the section is currently active
-            if (window.sindhiTipnoApp.currentSection === 'bhajans') {
-                window.sindhiTipnoApp.loadBhajansContent();
-            }
+            this.showMessage('Content uploaded successfully!', 'success');
+            this.clearUploadForm();
+            this.updateContentLibrary();
             
-            // Mark that content has been updated for future section loads
-            window.sindhiTipnoApp.contentUpdated = true;
-        }
+            // Auto-sync with Bhajans section if it's currently active or has been initialized
+            if (window.sindhiTipnoApp) {
+                // Refresh Bhajans content if the section is currently active
+                if (window.sindhiTipnoApp.currentSection === 'bhajans') {
+                    window.sindhiTipnoApp.loadBhajansContent();
+                }
+                
+                // Mark that content has been updated for future section loads
+                window.sindhiTipnoApp.contentUpdated = true;
+            }
+        };
+        
+        reader.onerror = () => {
+            this.showMessage('Error reading audio file', 'error');
+        };
+        
+        // Read file as ArrayBuffer
+        reader.readAsArrayBuffer(audioFile);
     }
 
     clearUploadForm() {
