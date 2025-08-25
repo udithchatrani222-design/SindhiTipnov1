@@ -306,7 +306,7 @@ class AuthSystem {
                 description: description,
                 uploadedAt: new Date().toISOString(),
                 uploadedBy: this.currentUser.identifier,
-                // Store file data for playback (in production, this would be a URL)
+                // Store file data as data URL for playback
                 fileData: e.target.result
             };
 
@@ -335,8 +335,8 @@ class AuthSystem {
             this.showMessage('Error reading audio file', 'error');
         };
         
-        // Read file as ArrayBuffer
-        reader.readAsArrayBuffer(audioFile);
+        // Read file as data URL
+        reader.readAsDataURL(audioFile);
     }
 
     clearUploadForm() {

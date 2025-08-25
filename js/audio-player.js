@@ -255,11 +255,13 @@ class AudioPlayer {
     }
     
     createAudioUrl(track) {
-        // In a real application, this would return the actual file URL
-        // For now, we'll try to create a blob URL if file data is available
+        // Return the data URL directly if available
+        if (track.fileData && track.fileData.startsWith('data:')) {
+            return track.fileData;
+        }
         
+        // Fallback: try to create a blob URL if file data is available
         if (track.fileData) {
-            // If we have actual file data, create a blob URL
             try {
                 const blob = new Blob([track.fileData], { type: track.fileType || 'audio/mpeg' });
                 return URL.createObjectURL(blob);
@@ -268,6 +270,7 @@ class AudioPlayer {
             }
         }
         
+        return null;
     }
     
     simulateAudioPlayback(track) {
