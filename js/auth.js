@@ -310,7 +310,7 @@ class AuthSystem {
         // Check if file extension is supported
         const isExtensionSupported = Object.values(supportedFormats).flat().includes(fileExtension);
 
-        if (!isMimeSupported && !isExtensionSupported) {
+        if (!isMimeSupported || !isExtensionSupported) {
             this.showMessage('Unsupported audio format. Please upload an MP3 or WAV file for best compatibility.', 'error');
             return;
         }
