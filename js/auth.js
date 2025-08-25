@@ -293,6 +293,36 @@ class AuthSystem {
             return;
         }
 
+        // Validate audio file format
+        const supportedFormats = {
+            'audio/mpeg': ['.mp3'],
+            'audio/wav': ['.wav'],
+            'audio/wave': ['.wav']
+        };
+
+        const fileName = audioFile.name.toLowerCase();
+        const fileExtension = fileName.substring(fileName.lastIndexOf('.'));
+        const mimeType = audioFile.type;
+
+        // Check if MIME type is supported
+        const isMimeSupported = Object.keys(supportedFormats).includes(mimeType);
+        
+        // Check if file extension is supported
+        const isExtensionSupported = Object.values(supportedFormats).flat().includes(fileExtension);
+
+        if (!isMimeSupported && !isExtensionSupported) {
+            this.showMessage('Unsupported audio format. Please upload an MP3 or WAV file for best compatibility.', 'error');
+            return;
+        }
+
+        // Normalize MIME type for consistent handling
+        let normalizedMimeType = mimeType;
+        if (fileExtension === '.mp3' && (!mimeType || mimeType === 'audio/mp3')) {
+            normalizedMimeType = 'audio/mpeg';
+        } else if (fileExtension === '.wav' && (!mimeType || mimeType === 'audio/wave')) {
+            normalizedMimeType = 'audio/wav';
+        }
+
         // Read file as ArrayBuffer for better audio handling
         const reader = new FileReader();
         reader.onload = (e) => {
@@ -302,7 +332,7 @@ class AuthSystem {
                 type: type,
                 fileName: audioFile.name,
                 fileSize: audioFile.size,
-                fileType: audioFile.type,
+                fileType: normalizedMimeType,
                 description: description,
                 uploadedAt: new Date().toISOString(),
                 uploadedBy: this.currentUser.identifier,

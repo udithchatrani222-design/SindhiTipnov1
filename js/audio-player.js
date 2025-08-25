@@ -257,12 +257,27 @@ class AudioPlayer {
     createAudioUrl(track) {
         // Return the data URL directly if available
         if (track.fileData && typeof track.fileData === 'string' && track.fileData.startsWith('data:')) {
-            return track.fileData;
+            if (typeof track.fileData === 'string' && track.fileData.startsWith('data:')) {
+                // Validate that the data URL has proper audio MIME type
+                const supportedMimeTypes = ['audio/mpeg', 'audio/wav'];
+                const hasValidMimeType = supportedMimeTypes.some(mimeType => 
+                    track.fileData.startsWith(`data:${mimeType}`)
+                );
+                
+                if (!hasValidMimeType) {
+                    console.warn('Invalid audio MIME type in data URL');
+                    return null;
+                }
+                
         }
         
         // Fallback: try to create a blob URL if file data is available
+                // Ensure we have a supported MIME type
+                const mimeType = ['audio/mpeg', 'audio/wav'].includes(track.fileType) ? 
+                    track.fileType : 'audio/mpeg';
+                    
         if (track.fileData) {
-            try {
+                    type: mimeType
                 const blob = new Blob([track.fileData], { type: track.fileType || 'audio/mpeg' });
                 return URL.createObjectURL(blob);
             } catch (error) {
