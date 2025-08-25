@@ -410,10 +410,16 @@
                 <div class="bhajans-library">
                     <div class="library-header">
                         <h3>Available Content</h3>
-                        <div class="filter-tabs">
-                            <button class="filter-btn active" data-filter="all">All</button>
-                            <button class="filter-btn" data-filter="aarti">Aarti</button>
-                            <button class="filter-btn" data-filter="bhajan">Bhajan</button>
+                        <div class="library-controls">
+                            <button class="sync-btn admin-only" id="syncContentBtn" style="display: none;">
+                                <i class="fas fa-sync-alt"></i>
+                                Sync Content
+                            </button>
+                            <div class="filter-tabs">
+                                <button class="filter-btn active" data-filter="all">All</button>
+                                <button class="filter-btn" data-filter="aarti">Aarti</button>
+                                <button class="filter-btn" data-filter="bhajan">Bhajan</button>
+                            </div>
                         </div>
                     </div>
                     <div class="content-grid" id="bhajansContentGrid">
@@ -425,7 +431,7 @@
                 <div class="empty-state" id="bhajansEmptyState">
                     <i class="fas fa-music"></i>
                     <h3>No Content Available</h3>
-                    <p>No bhajans or aartis have been uploaded yet. Admin can upload content from the Admin Panel.</p>
+                    <p>No bhajans or aartis have been uploaded yet. Admin can upload content from the Admin Panel and use the Sync button to refresh this section.</p>
                 </div>
             </section>
 
