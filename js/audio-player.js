@@ -268,8 +268,6 @@ class AudioPlayer {
             }
         }
         
-        // For demo purposes, return null to trigger simulation
-        return null;
     }
     
     simulateAudioPlayback(track) {
