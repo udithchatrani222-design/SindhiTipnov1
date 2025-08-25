@@ -302,6 +302,17 @@ class AuthSystem {
         this.showMessage('Content uploaded successfully!', 'success');
         this.clearUploadForm();
         this.updateContentLibrary();
+        
+        // Auto-sync with Bhajans section if it's currently active or has been initialized
+        if (window.sindhiTipnoApp) {
+            // Refresh Bhajans content if the section is currently active
+            if (window.sindhiTipnoApp.currentSection === 'bhajans') {
+                window.sindhiTipnoApp.loadBhajansContent();
+            }
+            
+            // Mark that content has been updated for future section loads
+            window.sindhiTipnoApp.contentUpdated = true;
+        }
     }
 
     clearUploadForm() {
@@ -389,6 +400,14 @@ class AuthSystem {
             localStorage.setItem('sindhiTipnoContent', JSON.stringify(updatedContent));
             this.updateContentLibrary();
             this.showMessage('Content deleted successfully!', 'success');
+            
+            // Auto-sync with Bhajans section after deletion
+            if (window.sindhiTipnoApp) {
+                if (window.sindhiTipnoApp.currentSection === 'bhajans') {
+                    window.sindhiTipnoApp.loadBhajansContent();
+                }
+                window.sindhiTipnoApp.contentUpdated = true;
+            }
         }
     }
 

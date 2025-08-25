@@ -7,6 +7,9 @@ class SindhiTipnoApp {
         this.festivals = {};
         this.currentMonthEvents = [];
         this.istUpdateTimer = null;
+        this.contentUpdated = false; // Flag to track content updates
+        this.adminSectionActive = false; // Flag to track admin section usage
+        this.currentBhajansContent = []; // Cache current bhajans content
         
         // Calculate today in IST first
         this.calculateTodayIST();
@@ -247,6 +250,9 @@ class SindhiTipnoApp {
         // Initialize bhajans section if switching to bhajans section
         if (sectionName === 'bhajans') {
             this.initializeBhajansSection();
+        } else if (sectionName === 'admin' && authSystem.currentUser && authSystem.currentUser.type === 'admin') {
+            // When switching to admin, mark that we might upload content
+            this.adminSectionActive = true;
         }
     }
 
@@ -836,6 +842,10 @@ class SindhiTipnoApp {
         if (this.audioPlayer) {
             this.audioPlayer.cleanup();
         }
+        
+        // Clear any content update flags
+        this.contentUpdated = false;
+        this.adminSectionActive = false;
     }
     
     // Initialize Bhajans Section
@@ -844,6 +854,9 @@ class SindhiTipnoApp {
             this.audioPlayer = new AudioPlayer();
         }
         this.loadBhajansContent();
+        
+        // Reset content updated flag since we're loading fresh content
+        this.contentUpdated = false;
     }
     
     // Load Bhajans Content
@@ -853,9 +866,12 @@ class SindhiTipnoApp {
         const emptyState = document.getElementById('bhajansEmptyState');
         const audioPlayerContainer = document.getElementById('audioPlayerContainer');
         
+        // Always ensure we have the latest content
+        this.currentBhajansContent = content;
+        
         if (content.length === 0) {
             contentGrid.style.display = 'none';
-            emptyState.style.display = 'block';
+            emptyState.style.display = 'none';
             audioPlayerContainer.style.display = 'none';
         } else {
             contentGrid.style.display = 'grid';
@@ -864,6 +880,14 @@ class SindhiTipnoApp {
             
             this.renderBhajansContent(content);
             this.setupContentFilters();
+        }
+        
+        // Show success message when content is loaded/updated
+        if (content.length > 0 && this.contentUpdated) {
+            if (authSystem && authSystem.showMessage) {
+                authSystem.showMessage(`Bhajans library updated with ${content.length} items`, 'success');
+            }
+            this.contentUpdated = false;
         }
     }
     
@@ -925,10 +949,9 @@ class SindhiTipnoApp {
         
         contentCards.forEach(card => {
             const contentId = card.getAttribute('data-content-id');
-            const content = JSON.parse(localStorage.getItem('sindhiTipnoContent')) || [];
-            const item = content.find(c => c.id === contentId);
+            const item = this.currentBhajansContent.find(c => c.id === contentId);
             
-            if (filter === 'all' || item.type === filter) {
+            if (filter === 'all' || (item && item.type === filter)) {
                 card.style.display = 'block';
             } else {
                 card.style.display = 'none';
