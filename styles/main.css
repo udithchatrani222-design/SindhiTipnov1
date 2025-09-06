@@ -8,480 +8,169 @@
 body {
     font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
     line-height: 1.6;
-    color: #374151;
-    background: #f8fafc;
-    overflow-x: hidden;
-}
-
-.app-container {
-    display: flex;
+    color: #2d3748;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     min-height: 100vh;
 }
 
-/* Sidebar Styles */
-.sidebar {
-    width: 280px;
+.app-container {
+    max-width: 1200px;
+    margin: 0 auto;
     background: white;
-    border-right: 1px solid #e5e7eb;
+    min-height: 100vh;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+}
+
+/* Header Styles */
+.app-header {
+    background: linear-gradient(135deg, #ff6b35 0%, #f7931e 100%);
+    color: white;
+    padding: 1rem 2rem;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.header-content {
     display: flex;
-    flex-direction: column;
-    position: fixed;
-    height: 100vh;
-    left: 0;
-    top: 0;
-    z-index: 100;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 1rem;
 }
 
-.sidebar-header {
-    padding: 2rem 1.5rem;
-    border-bottom: 1px solid #f3f4f6;
-    text-align: center;
-}
-
-.sidebar-header h2 {
-    font-size: 1.5rem;
-    font-weight: 700;
-    color: #f97316;
-    margin-bottom: 0.25rem;
-}
-
-.sidebar-header p {
-    font-size: 0.875rem;
-    color: #6b7280;
-    font-weight: 500;
-}
-
-.sidebar-nav {
-    flex: 1;
-    padding: 1rem 0;
-}
-
-.nav-item {
+.logo {
     display: flex;
     align-items: center;
     gap: 0.75rem;
-    padding: 0.875rem 1.5rem;
-    color: #6b7280;
-    text-decoration: none;
-    transition: all 0.2s ease;
-    font-weight: 500;
-    border-radius: 0;
 }
 
-.nav-item:hover {
-    background: #f9fafb;
-    color: #374151;
+.logo i {
+    font-size: 2rem;
+    color: #fff3cd;
 }
 
-.nav-item.active {
-    background: linear-gradient(135deg, #f97316 0%, #ea580c 100%);
+.logo h1 {
+    font-size: 1.75rem;
+    font-weight: 700;
+    margin: 0;
+}
+
+.header-controls {
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+.location-selector,
+.community-selector {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: rgba(255, 255, 255, 0.2);
+    padding: 0.5rem 1rem;
+    border-radius: 25px;
+    backdrop-filter: blur(10px);
+}
+
+.location-selector i,
+.community-selector i {
+    font-size: 1rem;
+    opacity: 0.9;
+}
+
+.location-selector select,
+.community-selector select {
+    background: transparent;
+    border: none;
     color: white;
-    margin: 0 0.75rem;
-    border-radius: 12px;
+    font-size: 0.9rem;
+    font-weight: 500;
+    cursor: pointer;
+    outline: none;
+    min-width: 150px;
 }
 
-.nav-item i {
-    font-size: 1.1rem;
-    width: 20px;
-}
-
-.sidebar-footer {
-    padding: 1.5rem;
-    border-top: 1px solid #f3f4f6;
-    text-align: center;
-    color: #6b7280;
-    font-size: 0.875rem;
-}
-
-.community-text {
-    color: #f97316;
-    font-weight: 600;
-    margin-top: 0.25rem;
+.location-selector select option,
+.community-selector select option {
+    background: #2d3748;
+    color: white;
+    padding: 0.5rem;
 }
 
 /* Main Content */
 .main-content {
-    flex: 1;
-    margin-left: 280px;
-    background: #f8fafc;
-    min-height: 100vh;
-}
-
-/* Top Header */
-.top-header {
-    background: linear-gradient(135deg, #f97316 0%, #ea580c 100%);
-    padding: 1.5rem 2rem;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-}
-
-.search-container {
-    position: relative;
-    flex: 1;
-    max-width: 400px;
-}
-
-.search-container i {
-    position: absolute;
-    left: 1rem;
-    top: 50%;
-    transform: translateY(-50%);
-    color: rgba(255, 255, 255, 0.7);
-}
-
-.search-input {
-    width: 100%;
-    padding: 0.75rem 1rem 0.75rem 2.5rem;
-    border: none;
-    border-radius: 25px;
-    background: rgba(255, 255, 255, 0.2);
-    color: white;
-    font-size: 0.95rem;
-    backdrop-filter: blur(10px);
-}
-
-.search-input::placeholder {
-    color: rgba(255, 255, 255, 0.7);
-}
-
-.search-input:focus {
-    outline: none;
-    background: rgba(255, 255, 255, 0.3);
-}
-
-.user-profile {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    color: white;
-    font-weight: 500;
-}
-
-.user-profile i {
-    font-size: 1.2rem;
-}
-
-/* Content Sections */
-.content-section {
-    display: none;
     padding: 2rem;
-    width: 100%;
-    max-width: none;
 }
 
-.content-section.active {
-    display: block;
-    animation: fadeIn 0.3s ease-out;
-}
-
-@keyframes fadeIn {
-    from {
-        opacity: 0;
-        transform: translateY(20px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
-
-/* Page Header */
-.page-header {
-    margin-bottom: 2rem;
-}
-
-.page-header h1 {
-    font-size: 2.5rem;
-    font-weight: 700;
-    color: #111827;
-    margin-bottom: 0.5rem;
-}
-
-.page-header p {
-    font-size: 1.125rem;
-    color: #6b7280;
-}
-
-/* Content Grid */
-.content-grid {
-    display: grid;
-    grid-template-columns: 2fr 1fr;
-    gap: 2rem;
-    margin-bottom: 2rem;
-}
-
-/* Festival Card */
-.festival-card {
-    background: white;
-    border-radius: 16px;
-    padding: 2rem;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-    border-left: 4px solid #f97316;
-}
-
-.festival-header {
-    display: flex;
-    align-items: flex-start;
-    gap: 1rem;
-    margin-bottom: 1.5rem;
-}
-
-.festival-icon {
-    font-size: 2rem;
-    flex-shrink: 0;
-}
-
-.festival-header h2 {
-    font-size: 1.75rem;
-    font-weight: 700;
-    color: #111827;
-    margin-bottom: 0.5rem;
-}
-
-.festival-tag {
-    display: inline-block;
-    padding: 0.25rem 0.75rem;
-    border-radius: 12px;
-    font-size: 0.75rem;
-    font-weight: 500;
-}
-
-.festival-tag.sindhi {
-    background: #fed7aa;
-    color: #ea580c;
-}
-
-.festival-tag.hindu {
-    background: #dbeafe;
-    color: #2563eb;
-}
-
-.festival-description {
-    color: #6b7280;
-    font-size: 1rem;
-    line-height: 1.6;
-    margin-bottom: 1.5rem;
-}
-
-.festival-actions {
-    display: flex;
-    gap: 1rem;
-}
-
-.btn-primary {
-    background: linear-gradient(135deg, #f97316 0%, #ea580c 100%);
-    color: white;
-    border: none;
-    padding: 0.75rem 1.5rem;
-    border-radius: 12px;
-    font-weight: 500;
-    cursor: pointer;
-    transition: all 0.2s ease;
-}
-
-.btn-primary:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(249, 115, 22, 0.3);
-}
-
-.btn-secondary {
-    background: white;
-    color: #374151;
-    border: 1px solid #d1d5db;
-    padding: 0.75rem 1.5rem;
-    border-radius: 12px;
-    font-weight: 500;
-    cursor: pointer;
-    transition: all 0.2s ease;
-}
-
-.btn-secondary:hover {
-    background: #f9fafb;
-    border-color: #9ca3af;
-}
-
-/* Upcoming Card */
-.upcoming-card {
-    background: white;
-    border-radius: 16px;
-    padding: 1.5rem;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-}
-
-.upcoming-card h3 {
-    font-size: 1.25rem;
-    font-weight: 600;
-    color: #111827;
-    margin-bottom: 1rem;
-}
-
-.event-list {
-    display: flex;
-    flex-direction: column;
-    gap: 1rem;
-}
-
-.event-item {
-    display: flex;
-    align-items: center;
-    gap: 1rem;
-    padding: 0.75rem;
-    border-radius: 12px;
-    background: #f9fafb;
-}
-
-.event-date {
-    background: #f97316;
-    color: white;
-    padding: 0.5rem;
-    border-radius: 8px;
-    font-size: 0.875rem;
-    font-weight: 600;
-    min-width: 50px;
-    text-align: center;
-}
-
-.event-info h4 {
-    font-size: 0.95rem;
-    font-weight: 600;
-    color: #111827;
-    margin-bottom: 0.25rem;
-}
-
-.event-tag {
-    font-size: 0.75rem;
-    padding: 0.125rem 0.5rem;
-    border-radius: 8px;
-    font-weight: 500;
-}
-
-/* Quick Actions */
-.quick-actions {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 1.5rem;
-}
-
-.action-card {
-    background: white;
-    border-radius: 16px;
-    padding: 2rem;
-    display: flex;
-    align-items: center;
-    gap: 1rem;
-    cursor: pointer;
-    transition: all 0.2s ease;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-}
-
-.action-card:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-}
-
-.action-card i {
-    font-size: 2rem;
-    color: #f97316;
-}
-
-.action-card h3 {
-    font-size: 1.125rem;
-    font-weight: 600;
-    color: #111827;
-    margin-bottom: 0.25rem;
-}
-
-.action-card p {
-    color: #6b7280;
-    font-size: 0.875rem;
-}
-
-/* Calendar Styles */
-.calendar-container {
-    background: white;
-    border-radius: 16px;
-    overflow: hidden;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-    width: 100%;
-    max-width: 100%;
-    margin: 0 auto;
-}
-
-.calendar-header {
-    background: linear-gradient(135deg, #f97316 0%, #ea580c 100%);
-    color: white;
-    padding: 1.25rem 2rem;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 1rem;
-    flex-wrap: nowrap;
-    min-height: 60px;
-}
-
-.calendar-header h2 {
-    font-size: 1.5rem;
-    font-weight: 700;
-    flex: 1;
-    text-align: center;
-    margin: 0;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    min-width: 0;
-}
-
+/* Calendar Navigation */
 .calendar-nav {
-    background: rgba(255, 255, 255, 0.2);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+    background: white;
+    padding: 1.5rem;
+    border-radius: 15px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+}
+
+.nav-btn {
+    background: linear-gradient(135deg, #ff6b35 0%, #f7931e 100%);
     border: none;
     color: white;
-    border-radius: 8px;
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
     cursor: pointer;
-    transition: background 0.2s ease;
-    font-size: 1.2rem;
-    width: 40px;
-    height: 40px;
+    transition: all 0.3s ease;
     display: flex;
     align-items: center;
     justify-content: center;
-    flex-shrink: 0;
-    font-weight: bold;
-    min-width: 40px;
-    min-height: 40px;
+    font-size: 1.2rem;
 }
 
-.calendar-nav:disabled {
-    opacity: 0.5 !important;
-    cursor: not-allowed;
-    background: rgba(255, 255, 255, 0.1) !important;
-    pointer-events: none;
+.nav-btn:hover {
+    transform: scale(1.1);
+    box-shadow: 0 4px 15px rgba(255, 107, 53, 0.4);
 }
 
-.calendar-nav:not(:disabled):hover {
-    background: rgba(255, 255, 255, 0.3);
+.current-month {
+    text-align: center;
 }
 
-.calendar-nav:not(:disabled):active {
-    background: rgba(255, 255, 255, 0.4);
-    transform: scale(0.95);
+.current-month h2 {
+    font-size: 2rem;
+    font-weight: 700;
+    color: #2d3748;
+    margin-bottom: 0.25rem;
+}
+
+.current-month p {
+    color: #718096;
+    font-size: 0.9rem;
+}
+
+/* Calendar Container */
+.calendar-container {
+    background: white;
+    border-radius: 15px;
+    overflow: hidden;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    margin-bottom: 2rem;
 }
 
 .calendar-weekdays {
     display: grid;
     grid-template-columns: repeat(7, 1fr);
-    background: #f8fafc;
-    border-bottom: 1px solid #e5e7eb;
+    background: linear-gradient(135deg, #4a5568 0%, #2d3748 100%);
+    color: white;
 }
 
 .weekday {
-    padding: 0.75rem;
+    padding: 1rem;
     text-align: center;
-    font-weight: 700;
-    color: #374151;
-    font-size: 0.8rem;
+    font-weight: 600;
+    font-size: 0.9rem;
     text-transform: uppercase;
     letter-spacing: 0.5px;
 }
@@ -489,146 +178,278 @@ body {
 .calendar-grid {
     display: grid;
     grid-template-columns: repeat(7, 1fr);
-    width: 100%;
-    gap: 0;
-    background: #e5e7eb;
-    overflow: hidden;
+    gap: 1px;
+    background: #e2e8f0;
 }
 
 .calendar-day {
-    min-height: 100px;
     background: white;
-    padding: 0.25rem;
+    min-height: 120px;
+    padding: 0.75rem;
     position: relative;
+    cursor: pointer;
+    transition: all 0.2s ease;
     display: flex;
     flex-direction: column;
-    width: 100%;
-    transition: background-color 0.2s ease;
-    border: 1px solid #e5e7eb;
-    box-sizing: border-box;
-    overflow: hidden;
 }
 
 .calendar-day:hover {
-    background: #f9fafb;
-}
-
-.calendar-day.today {
-    background: #fef3c7 !important;
-    border: 2px solid #f59e0b !important;
+    background: #f7fafc;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
 }
 
 .calendar-day.other-month {
-    color: #d1d5db;
-    background: #f9fafb;
+    background: #f8f9fa;
+    color: #a0aec0;
+}
+
+.calendar-day.today {
+    background: linear-gradient(135deg, #fff3cd 0%, #ffeaa7 100%);
+    border: 2px solid #ff6b35;
 }
 
 .day-number {
-    font-size: 0.9rem;
-    font-weight: 700;
-    color: #374151;
-    margin-bottom: 0.15rem;
-    line-height: 1;
-    flex-shrink: 0;
+    font-size: 1.1rem;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+    color: #2d3748;
 }
 
 .calendar-day.today .day-number {
-    color: #d97706;
-}
-
-.calendar-day.other-month .day-number {
-    color: #d1d5db;
+    color: #ff6b35;
+    font-weight: 700;
 }
 
 .day-events {
+    flex: 1;
     display: flex;
     flex-direction: column;
-    gap: 0.1rem;
-    flex: 1;
-    overflow: hidden;
-    min-height: 0;
+    gap: 0.25rem;
 }
 
-.event-pill {
+.event-dot {
+    width: 100%;
+    padding: 0.25rem 0.5rem;
+    border-radius: 12px;
+    font-size: 0.7rem;
+    font-weight: 500;
+    text-align: center;
     color: white;
-    padding: 0.15rem 0.25rem;
-    border-radius: 4px;
-    font-size: 0.6rem;
-    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-    line-height: 1.2;
-    cursor: pointer;
-    transition: all 0.2s ease;
-    flex-shrink: 0;
-    max-width: 100%;
 }
 
-.event-pill.sindhi {
-    background: #f97316;
+.event-dot:hover {
+    transform: scale(1.05);
 }
 
-.event-pill.hindu {
-    background: #3b82f6;
+.event-dot.festival {
+    background: linear-gradient(135deg, #ff6b35 0%, #f7931e 100%);
 }
 
-.event-pill.other {
-    background: #6b7280;
+.event-dot.vrat {
+    background: linear-gradient(135deg, #9f7aea 0%, #805ad5 100%);
 }
 
-.event-pill.more-events {
-    background: #6b7280 !important;
-    font-size: 0.55rem;
+.event-dot.ekadashi {
+    background: linear-gradient(135deg, #38b2ac 0%, #319795 100%);
+}
+
+.event-dot.special {
+    background: linear-gradient(135deg, #ed8936 0%, #dd6b20 100%);
+}
+
+/* Festival List */
+.festival-list-container {
+    background: white;
+    border-radius: 15px;
+    padding: 2rem;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+}
+
+.festival-list-container h3 {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #2d3748;
+    margin-bottom: 1.5rem;
     text-align: center;
 }
 
-.event-pill:hover {
-    opacity: 0.8;
-    transform: scale(1.02);
+.filter-tabs {
+    display: flex;
+    justify-content: center;
+    gap: 0.5rem;
+    margin-bottom: 2rem;
+    flex-wrap: wrap;
 }
 
-.major-festival-star {
-    position: absolute;
-    top: 0.2rem;
-    right: 0.2rem;
-    color: #fbbf24;
-    font-size: 0.7rem;
-    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
-    z-index: 1;
+.filter-tab {
+    padding: 0.75rem 1.5rem;
+    border: 2px solid #e2e8f0;
+    background: white;
+    color: #4a5568;
+    border-radius: 25px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-weight: 500;
+    font-size: 0.9rem;
 }
 
-/* Event Modal Styles */
-.event-modal {
+.filter-tab:hover {
+    border-color: #ff6b35;
+    color: #ff6b35;
+}
+
+.filter-tab.active {
+    background: linear-gradient(135deg, #ff6b35 0%, #f7931e 100%);
+    color: white;
+    border-color: #ff6b35;
+}
+
+.festival-list {
+    display: grid;
+    gap: 1rem;
+}
+
+.festival-item {
+    background: #f8f9fa;
+    border-radius: 12px;
+    padding: 1.5rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    border-left: 4px solid transparent;
+}
+
+.festival-item:hover {
+    background: #e2e8f0;
+    transform: translateX(5px);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+}
+
+.festival-item.festival {
+    border-left-color: #ff6b35;
+}
+
+.festival-item.vrat {
+    border-left-color: #9f7aea;
+}
+
+.festival-item.ekadashi {
+    border-left-color: #38b2ac;
+}
+
+.festival-item.special {
+    border-left-color: #ed8936;
+}
+
+.festival-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 0.75rem;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+
+.festival-name {
+    font-size: 1.2rem;
+    font-weight: 600;
+    color: #2d3748;
+    margin: 0;
+}
+
+.festival-date {
+    font-size: 0.9rem;
+    color: #718096;
+    font-weight: 500;
+}
+
+.festival-type {
+    display: inline-block;
+    padding: 0.25rem 0.75rem;
+    border-radius: 15px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.festival-type.festival {
+    background: #fed7d7;
+    color: #c53030;
+}
+
+.festival-type.vrat {
+    background: #e9d8fd;
+    color: #553c9a;
+}
+
+.festival-type.ekadashi {
+    background: #b2f5ea;
+    color: #234e52;
+}
+
+.festival-type.special {
+    background: #fbd38d;
+    color: #744210;
+}
+
+.festival-description {
+    color: #4a5568;
+    font-size: 0.95rem;
+    line-height: 1.5;
+    margin-bottom: 0.75rem;
+}
+
+.festival-tags {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+}
+
+.festival-tag {
+    background: #edf2f7;
+    color: #4a5568;
+    padding: 0.25rem 0.5rem;
+    border-radius: 8px;
+    font-size: 0.75rem;
+    font-weight: 500;
+}
+
+/* Modal Styles */
+.modal {
+    display: none;
     position: fixed;
-    top: 0;
+    z-index: 1000;
     left: 0;
+    top: 0;
     width: 100%;
     height: 100%;
-    background: rgba(0, 0, 0, 0.5);
+    background-color: rgba(0, 0, 0, 0.6);
     backdrop-filter: blur(5px);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    z-index: 1000;
-    animation: fadeIn 0.3s ease-out;
 }
 
-.event-modal-content {
+.modal-content {
     background: white;
-    border-radius: 16px;
+    margin: 5% auto;
+    padding: 0;
+    border-radius: 15px;
     width: 90%;
-    max-width: 500px;
+    max-width: 600px;
     max-height: 80vh;
     overflow-y: auto;
-    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
-    animation: slideUp 0.3s ease-out;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+    animation: modalSlideIn 0.3s ease-out;
 }
 
-@keyframes slideUp {
+@keyframes modalSlideIn {
     from {
         opacity: 0;
-        transform: translateY(50px) scale(0.9);
+        transform: translateY(-50px) scale(0.9);
     }
     to {
         opacity: 1;
@@ -636,784 +457,316 @@ body {
     }
 }
 
-.event-modal-header {
+.modal-header {
+    background: linear-gradient(135deg, #ff6b35 0%, #f7931e 100%);
+    color: white;
     padding: 1.5rem 2rem;
-    border-bottom: 1px solid #e5e7eb;
+    border-radius: 15px 15px 0 0;
     display: flex;
     justify-content: space-between;
     align-items: center;
 }
 
-.event-modal-header h3 {
-    color: #111827;
-    font-size: 1.25rem;
-    font-weight: 600;
+.modal-header h3 {
     margin: 0;
-    line-height: 1.4;
-}
-
-.event-modal-close {
     font-size: 1.5rem;
-    font-weight: bold;
-    color: #9ca3af;
-    cursor: pointer;
-    transition: color 0.2s ease;
-    padding: 0.25rem;
+    font-weight: 700;
 }
 
-.event-modal-close:hover {
-    color: #374151;
-}
-
-.event-modal-body {
-    padding: 1.5rem 2rem;
-}
-
-.event-modal-body p {
-    margin-bottom: 1rem;
-    line-height: 1.6;
-}
-
-.event-modal-body p:last-child {
-    margin-bottom: 0;
-}
-
-.event-modal-body a {
-    color: #f97316;
-    text-decoration: none;
-    font-weight: 500;
-}
-
-.event-modal-body a:hover {
-    text-decoration: underline;
-}
-
-.event-item-modal {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    margin-bottom: 0.75rem;
-    padding: 0.5rem;
-    background: #f9fafb;
-    border-radius: 8px;
-}
-
-.event-item-modal:last-child {
-    margin-bottom: 0;
-}
-
-.event-item-modal .event-pill {
-    margin: 0;
-    flex: 1;
-}
-
-.event-item-modal i {
-    color: #fbbf24;
-    font-size: 0.875rem;
-}
-
-.calendar-legend {
-    padding: 1rem 2rem;
-    background: #f9fafb;
-    border-top: 1px solid #e5e7eb;
-    display: flex;
-    gap: 1.5rem;
-    align-items: center;
-    justify-content: center;
-    flex-wrap: wrap;
-}
-
-.legend-item {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    font-size: 0.8rem;
-    color: #6b7280;
-    font-weight: 500;
-}
-
-.legend-dot {
-    width: 12px;
-    height: 12px;
-    border-radius: 3px;
-}
-
-.legend-dot.sindhi {
-    background: #f97316;
-}
-
-.legend-dot.hindu {
-    background: #3b82f6;
-}
-
-.legend-dot.other {
-    background: #6b7280;
-}
-
-.legend-star {
-    color: #fbbf24;
-    font-size: 0.9rem;
-}
-
-/* Coming Soon */
-.coming-soon {
-    text-align: center;
-    padding: 4rem 2rem;
-    color: #6b7280;
-}
-
-.coming-soon i {
-    font-size: 4rem;
-    margin-bottom: 1rem;
-    color: #d1d5db;
-}
-
-.coming-soon h3 {
-    font-size: 1.5rem;
-    font-weight: 600;
-    margin-bottom: 0.5rem;
-    color: #374151;
-}
-
-/* Audio Player Styles */
-.audio-player-container {
-    background: white;
-    border-radius: 16px;
-    padding: 2rem;
-    margin-bottom: 2rem;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-}
-
-.audio-player {
-    display: flex;
-    flex-direction: column;
-    gap: 1.5rem;
-}
-
-.player-info {
-    text-align: center;
-}
-
-.player-info h3 {
-    font-size: 1.25rem;
-    font-weight: 600;
-    color: #111827;
-    margin-bottom: 0.25rem;
-}
-
-.player-info p {
-    color: #6b7280;
-    font-size: 0.875rem;
-    text-transform: capitalize;
-}
-
-.player-controls {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    gap: 1rem;
-}
-
-.control-btn {
-    background: #f97316;
-    border: none;
+.close {
     color: white;
-    width: 48px;
-    height: 48px;
-    border-radius: 50%;
+    font-size: 2rem;
+    font-weight: bold;
     cursor: pointer;
     transition: all 0.2s ease;
+    width: 40px;
+    height: 40px;
     display: flex;
     align-items: center;
     justify-content: center;
+    border-radius: 50%;
+}
+
+.close:hover {
+    background: rgba(255, 255, 255, 0.2);
+    transform: scale(1.1);
+}
+
+.modal-body {
+    padding: 2rem;
+}
+
+.festival-info {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+    margin-bottom: 2rem;
+    padding: 1.5rem;
+    background: #f8f9fa;
+    border-radius: 12px;
+}
+
+.festival-info > div {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.festival-info i {
+    color: #ff6b35;
+    font-size: 1.2rem;
+    width: 20px;
+}
+
+.festival-info span {
+    font-weight: 500;
+    color: #2d3748;
+}
+
+.festival-description,
+.festival-observances,
+.festival-fasting,
+.community-specific {
+    margin-bottom: 2rem;
+}
+
+.festival-description h4,
+.festival-observances h4,
+.festival-fasting h4,
+.community-specific h4 {
+    color: #2d3748;
+    font-size: 1.2rem;
+    font-weight: 600;
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.festival-description h4:before {
+    content: "📖";
     font-size: 1.1rem;
 }
 
-.play-pause-btn {
-    width: 56px;
-    height: 56px;
-    font-size: 1.3rem;
+.festival-observances h4:before {
+    content: "🙏";
+    font-size: 1.1rem;
 }
 
-.control-btn:hover {
-    background: #ea580c;
-    transform: scale(1.05);
+.festival-fasting h4:before {
+    content: "🍽️";
+    font-size: 1.1rem;
 }
 
-.control-btn:disabled {
-    background: #d1d5db;
-    cursor: not-allowed;
-    transform: none;
+.community-specific h4:before {
+    content: "👥";
+    font-size: 1.1rem;
 }
 
-.player-progress {
-    display: flex;
-    align-items: center;
-    gap: 1rem;
-}
-
-.progress-bar {
-    flex: 1;
-    position: relative;
-    height: 6px;
-    background: #e5e7eb;
-    border-radius: 3px;
-    overflow: hidden;
-}
-
-.progress-fill {
-    height: 100%;
-    background: #f97316;
-    border-radius: 3px;
-    transition: width 0.1s ease;
-    width: 0%;
-}
-
-.progress-slider {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    opacity: 0;
-    cursor: pointer;
-}
-
-.volume-control {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    justify-content: center;
-}
-
-.volume-control i {
-    color: #6b7280;
+.festival-description p,
+.community-specific p {
+    color: #4a5568;
+    line-height: 1.6;
     font-size: 1rem;
 }
 
-.volume-slider {
-    width: 100px;
-    height: 4px;
-    background: #e5e7eb;
-    border-radius: 2px;
-    outline: none;
-    cursor: pointer;
+.festival-observances ul,
+.festival-fasting ul {
+    list-style: none;
+    padding: 0;
 }
 
-.volume-slider::-webkit-slider-thumb {
-    appearance: none;
-    width: 16px;
-    height: 16px;
-    background: #f97316;
-    border-radius: 50%;
-    cursor: pointer;
-}
-
-.volume-slider::-moz-range-thumb {
-    width: 16px;
-    height: 16px;
-    background: #f97316;
-    border-radius: 50%;
-    cursor: pointer;
-    border: none;
-}
-
-/* Bhajans Library */
-.bhajans-library {
-    background: white;
-    border-radius: 16px;
-    padding: 2rem;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-}
-
-.library-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 2rem;
-    flex-wrap: wrap;
-    gap: 1rem;
-}
-
-.library-header h3 {
-    font-size: 1.25rem;
-    font-weight: 600;
-    color: #111827;
-}
-
-.library-controls {
-    display: flex;
-    align-items: center;
-    gap: 1rem;
-    flex-wrap: wrap;
-}
-
-.sync-btn {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    padding: 0.5rem 1rem;
-    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
-    color: white;
-    border: none;
+.festival-observances li,
+.festival-fasting li {
+    background: #edf2f7;
+    padding: 0.75rem 1rem;
+    margin-bottom: 0.5rem;
     border-radius: 8px;
-    font-weight: 500;
-    cursor: pointer;
-    transition: all 0.2s ease;
-    font-size: 0.875rem;
+    color: #2d3748;
+    position: relative;
+    padding-left: 2.5rem;
 }
 
-.sync-btn:hover {
-    transform: translateY(-1px);
-    box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+.festival-observances li:before,
+.festival-fasting li:before {
+    content: "•";
+    color: #ff6b35;
+    font-weight: bold;
+    position: absolute;
+    left: 1rem;
+    font-size: 1.2rem;
 }
 
-.sync-btn i {
-    font-size: 0.875rem;
+/* Responsive Design */
+@media (max-width: 768px) {
+    .app-header {
+        padding: 1rem;
+    }
+    
+    .header-content {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 1rem;
+    }
+    
+    .header-controls {
+        justify-content: center;
+    }
+    
+    .location-selector,
+    .community-selector {
+        flex: 1;
+        justify-content: center;
+    }
+    
+    .main-content {
+        padding: 1rem;
+    }
+    
+    .calendar-nav {
+        padding: 1rem;
+        flex-direction: column;
+        gap: 1rem;
+        text-align: center;
+    }
+    
+    .current-month h2 {
+        font-size: 1.5rem;
+    }
+    
+    .calendar-day {
+        min-height: 80px;
+        padding: 0.5rem;
+    }
+    
+    .day-number {
+        font-size: 1rem;
+    }
+    
+    .event-dot {
+        font-size: 0.6rem;
+        padding: 0.2rem 0.4rem;
+    }
+    
+    .festival-list-container {
+        padding: 1rem;
+    }
+    
+    .filter-tabs {
+        gap: 0.25rem;
+    }
+    
+    .filter-tab {
+        padding: 0.5rem 1rem;
+        font-size: 0.8rem;
+    }
+    
+    .festival-item {
+        padding: 1rem;
+    }
+    
+    .festival-name {
+        font-size: 1.1rem;
+    }
+    
+    .modal-content {
+        width: 95%;
+        margin: 10% auto;
+    }
+    
+    .modal-header {
+        padding: 1rem 1.5rem;
+    }
+    
+    .modal-body {
+        padding: 1.5rem;
+    }
+    
+    .festival-info {
+        grid-template-columns: 1fr;
+        padding: 1rem;
+    }
 }
 
-.sync-btn.syncing {
-    background: #6b7280;
-    cursor: not-allowed;
+@media (max-width: 480px) {
+    .logo h1 {
+        font-size: 1.5rem;
+    }
+    
+    .calendar-day {
+        min-height: 60px;
+        padding: 0.25rem;
+    }
+    
+    .day-number {
+        font-size: 0.9rem;
+        margin-bottom: 0.25rem;
+    }
+    
+    .event-dot {
+        font-size: 0.55rem;
+        padding: 0.15rem 0.3rem;
+    }
+    
+    .festival-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.5rem;
+    }
+    
+    .modal-header h3 {
+        font-size: 1.2rem;
+    }
+    
+    .close {
+        font-size: 1.5rem;
+        width: 35px;
+        height: 35px;
+    }
 }
 
-.sync-btn.syncing i {
+/* Loading Animation */
+.loading {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 2rem;
+}
+
+.loading-spinner {
+    width: 40px;
+    height: 40px;
+    border: 4px solid #e2e8f0;
+    border-top: 4px solid #ff6b35;
+    border-radius: 50%;
     animation: spin 1s linear infinite;
 }
 
 @keyframes spin {
-    from { transform: rotate(0deg); }
-    to { transform: rotate(360deg); }
-}
-
-.filter-tabs {
-    display: flex;
-    gap: 0.5rem;
-    background: #f9fafb;
-    border-radius: 8px;
-    padding: 0.25rem;
-}
-
-.filter-btn {
-    padding: 0.5rem 1rem;
-    border: none;
-    background: transparent;
-    border-radius: 6px;
-    font-weight: 500;
-    color: #6b7280;
-    cursor: pointer;
-    transition: all 0.2s ease;
-    font-size: 0.875rem;
-}
-
-.filter-btn.active {
-    background: white;
-    color: #f97316;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-}
-
-.content-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-    gap: 1.5rem;
-}
-
-.content-card {
-    background: #f9fafb;
-    border-radius: 12px;
-    padding: 1.5rem;
-    transition: all 0.2s ease;
-    cursor: pointer;
-    border: 2px solid transparent;
-}
-
-.content-card:hover {
-    background: #f3f4f6;
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-}
-
-.content-card.playing {
-    border-color: #f97316;
-    background: #fef3c7;
-}
-
-.content-card-header {
-    display: flex;
-    align-items: flex-start;
-    gap: 1rem;
-    margin-bottom: 1rem;
-}
-
-.content-icon {
-    width: 48px;
-    height: 48px;
-    background: #f97316;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: white;
-    font-size: 1.2rem;
-    flex-shrink: 0;
-}
-
-.content-info h4 {
-    font-size: 1.1rem;
-    font-weight: 600;
-    color: #111827;
-    margin-bottom: 0.25rem;
-    line-height: 1.3;
-}
-
-.content-type-badge {
-    display: inline-block;
-    padding: 0.25rem 0.5rem;
-    background: #e5e7eb;
-    color: #374151;
-    border-radius: 6px;
-    font-size: 0.75rem;
-    font-weight: 500;
-    text-transform: capitalize;
-}
-
-.content-type-badge.aarti {
-    background: #dbeafe;
-    color: #2563eb;
-}
-
-.content-type-badge.bhajan {
-    background: #fed7aa;
-    color: #ea580c;
-}
-
-.content-description {
-    color: #6b7280;
-    font-size: 0.875rem;
-    line-height: 1.5;
-    margin-bottom: 1rem;
-}
-
-.content-meta {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    font-size: 0.75rem;
-    color: #9ca3af;
-}
-
-.play-indicator {
-    display: flex;
-    align-items: center;
-    gap: 0.25rem;
-    color: #f97316;
-    font-weight: 500;
-}
-
-.play-indicator i {
-    font-size: 0.8rem;
-}
-
-/* Audio Output Indicator */
-.audio-output-indicator {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    font-size: 0.75rem;
-    color: #10b981;
-    margin-top: 0.5rem;
-    justify-content: center;
-}
-
-.audio-output-indicator i {
-    font-size: 0.875rem;
-}
-
-/* User Interaction Prompt */
-.user-interaction-prompt {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(0, 0, 0, 0.8);
-    backdrop-filter: blur(5px);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    z-index: 10000;
-    animation: fadeIn 0.3s ease-out;
-}
-
-.prompt-content {
-    background: white;
-    border-radius: 16px;
-    padding: 2rem;
-    text-align: center;
-    max-width: 400px;
-    width: 90%;
-    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
-    animation: slideUp 0.3s ease-out;
-}
-
-.prompt-content i {
-    font-size: 3rem;
-    color: #f97316;
-    margin-bottom: 1rem;
-}
-
-.prompt-content h3 {
-    font-size: 1.25rem;
-    font-weight: 600;
-    color: #111827;
-    margin-bottom: 0.5rem;
-}
-
-.prompt-content p {
-    color: #6b7280;
-    margin-bottom: 1.5rem;
-    line-height: 1.5;
-}
-
-.enable-audio-btn {
-    background: linear-gradient(135deg, #f97316 0%, #ea580c 100%);
-    color: white;
-    border: none;
-    padding: 0.75rem 2rem;
-    border-radius: 12px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.2s ease;
-    font-size: 1rem;
-}
-
-.enable-audio-btn:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(249, 115, 22, 0.3);
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
 }
 
 /* Empty State */
 .empty-state {
     text-align: center;
-    padding: 4rem 2rem;
-    color: #6b7280;
-    background: white;
-    border-radius: 16px;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    padding: 3rem 1rem;
+    color: #718096;
 }
 
 .empty-state i {
-    font-size: 4rem;
+    font-size: 3rem;
     margin-bottom: 1rem;
-    color: #d1d5db;
+    color: #cbd5e0;
 }
 
 .empty-state h3 {
-    font-size: 1.5rem;
-    font-weight: 600;
+    font-size: 1.2rem;
     margin-bottom: 0.5rem;
-    color: #374151;
+    color: #4a5568;
 }
 
 .empty-state p {
-    line-height: 1.6;
-}
-
-/* Responsive Design */
-@media (max-width: 1024px) {
-    .content-grid {
-        grid-template-columns: 1fr;
-    }
-    
-    .quick-actions {
-        grid-template-columns: 1fr;
-    }
-    
-    .library-header {
-        flex-direction: column;
-        align-items: flex-start;
-    }
-    
-    .library-controls {
-        width: 100%;
-        justify-content: space-between;
-    }
-    
-    .filter-tabs {
-        width: auto;
-        justify-content: center;
-    }
-    
-    .content-grid {
-        grid-template-columns: 1fr;
-    }
-}
-
-@media (max-width: 768px) {
-    .sidebar {
-        transform: translateX(-100%);
-        transition: transform 0.3s ease;
-    }
-    
-    .sidebar.mobile-open {
-        transform: translateX(0);
-    }
-    
-    .main-content {
-        margin-left: 0;
-    }
-    
-    .content-section {
-        padding: 1rem;
-    }
-    
-    .page-header h1 {
-        font-size: 2rem;
-    }
-    
-    .top-header {
-        padding: 1rem;
-    }
-    
-    .search-container {
-        max-width: none;
-        margin-right: 1rem;
-    }
-    
-    .calendar-header {
-        padding: 0.75rem 1rem;
-        gap: 0.5rem;
-    }
-    
-    .calendar-header h2 {
-        font-size: 1rem;
-    }
-    
-    .calendar-nav {
-        width: 36px;
-        height: 36px;
-        font-size: 0.9rem;
-    }
-    
-    .calendar-day {
-        min-height: 80px;
-        padding: 0.2rem;
-    }
-    
-    .day-number {
-        font-size: 0.8rem;
-    }
-    
-    .event-pill {
-        font-size: 0.55rem;
-        padding: 0.1rem 0.2rem;
-        border-radius: 3px;
-    }
-    
-    .major-festival-star {
-        font-size: 0.6rem;
-        top: 0.15rem;
-        right: 0.15rem;
-    }
-    
-    .calendar-legend {
-        flex-wrap: wrap;
-        gap: 1rem;
-        padding: 1rem;
-        font-size: 0.75rem;
-    }
-    
-    .event-modal-content {
-        width: 95%;
-        margin: 1rem;
-    }
-    
-    .event-modal-header,
-    .event-modal-body {
-        padding: 1rem 1.5rem;
-    }
-    
-    .event-modal-header h3 {
-        font-size: 1.125rem;
-    }
-    
-    .audio-player-container {
-        padding: 1rem;
-    }
-    
-    .player-controls {
-        gap: 0.75rem;
-    }
-    
-    .control-btn {
-        width: 44px;
-        height: 44px;
-    }
-    
-    .play-pause-btn {
-        width: 52px;
-        height: 52px;
-    }
-    
-    .volume-control {
-        flex-direction: column;
-        gap: 0.5rem;
-    }
-    
-    .volume-slider {
-        width: 150px;
-    }
-    
-    .bhajans-library {
-        padding: 1rem;
-    }
-    
-    .filter-tabs {
-        width: 100%;
-        justify-content: center;
-    }
-}
-
-@media (max-width: 480px) {
-    .calendar-header {
-        padding: 0.5rem;
-        gap: 0.25rem;
-    }
-    
-    .calendar-header h2 {
-        font-size: 0.9rem;
-    }
-    
-    .calendar-nav {
-        width: 32px;
-        height: 32px;
-        font-size: 0.8rem;
-    }
-    
-    .calendar-day {
-        min-height: 70px;
-        padding: 0.15rem;
-    }
-    
-    .day-number {
-        font-size: 0.75rem;
-        margin-bottom: 0.1rem;
-    }
-    
-    .event-pill {
-        font-size: 0.5rem;
-        padding: 0.08rem 0.15rem;
-        line-height: 1.1;
-    }
-    
-    .major-festival-star {
-        font-size: 0.55rem;
-        top: 0.1rem;
-        right: 0.1rem;
-    }
-    
-    .weekday {
-        padding: 0.5rem 0.25rem;
-        font-size: 0.7rem;
-    }
+    font-size: 0.9rem;
+    line-height: 1.5;
 }

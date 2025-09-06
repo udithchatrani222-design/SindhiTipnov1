@@ -1,1086 +1,381 @@
-// Main application functionality
-class SindhiTipnoApp {
+// Main application logic
+class HinduCalendarApp {
     constructor() {
-        this.currentSection = 'today';
-        this.currentDate = new Date(2025, 7, 1); // Start with August 2025
-        this.today = null; // Will be set by calculateTodayIST()
-        this.festivals = {};
-        this.currentMonthEvents = [];
-        this.istUpdateTimer = null;
-        this.contentUpdated = false; // Flag to track content updates
-        this.adminSectionActive = false; // Flag to track admin section usage
-        this.currentBhajansContent = []; // Cache current bhajans content
+        this.currentDate = new Date();
+        this.currentMonth = this.currentDate.getMonth();
+        this.currentYear = this.currentDate.getFullYear();
+        this.selectedLocation = '';
+        this.selectedCommunity = '';
+        this.currentFilter = 'all';
         
-        // Calculate today in IST first
-        this.calculateTodayIST();
         this.initializeApp();
-        this.setupISTTimer(); // Setup automatic IST updates
     }
-
-    // Calculate current date strictly in IST (UTC+5:30)
-    calculateTodayIST() {
-        const previousToday = this.today;
-        
-        // Get current UTC time
-        const nowUTC = new Date();
-        
-        // Offset in minutes for IST (UTC+5:30)
-        const ISTOffsetMinutes = 5.5 * 60;
-        
-        // Calculate IST by adding offset to UTC time
-        const nowIST = new Date(nowUTC.getTime() + (ISTOffsetMinutes * 60 * 1000));
-        
-        // Set today to the IST date
-        this.today = new Date(nowIST.getFullYear(), nowIST.getMonth(), nowIST.getDate());
-        
-        // Format the display string with IST timezone
-        try {
-            this.todayFormatted = nowIST.toLocaleDateString('en-IN', {
-                weekday: 'long',
-                year: 'numeric',
-                month: 'long',
-                day: 'numeric',
-                timeZone: 'Asia/Kolkata'
-            }) + ' (IST)';
-        } catch (error) {
-            // Fallback formatting if timezone API fails
-            this.todayFormatted = this.today.toLocaleDateString('en-IN', {
-                weekday: 'long',
-                year: 'numeric',
-                month: 'long',
-                day: 'numeric'
-            }) + ' (IST)';
-        }
-        
-        // Check if date has changed
-        const dateChanged = !previousToday || !this.isSameDay(previousToday, this.today);
-        
-        if (dateChanged) {
-            this.updateCurrentDate();
-            
-            // Re-render calendar if it's currently visible and date changed
-            if (this.currentSection === 'calendar') {
-                this.renderCalendar();
-            }
-            
-            // Show notification about date update (only after initial load)
-            if (authSystem && authSystem.showMessage && previousToday) {
-                authSystem.showMessage(`Date updated to ${this.todayFormatted}`, 'info');
-            }
-        }
-        
-        return dateChanged;
-    }
-
-    // Fallback IST calculation if timezone API fails
-    calculateTodayISTFallback() {
-        // Get current UTC time
-        const nowUTC = new Date();
-        
-        // Add 5.5 hours (IST offset) to UTC
-        const nowIST = new Date(nowUTC.getTime() + (5.5 * 60 * 60 * 1000));
-        
-        // Set today to the IST date
-        this.today = new Date(nowIST.getFullYear(), nowIST.getMonth(), nowIST.getDate());
-        
-        // Format display string
-        this.todayFormatted = this.today.toLocaleDateString('en-IN', {
-            weekday: 'long',
-            year: 'numeric',
-            month: 'long',
-            day: 'numeric'
-        }) + ' (IST)';
-    }
-
-    // Get current IST time for display purposes
-    getCurrentISTTime() {
-        try {
-            const nowUTC = new Date();
-            const ISTOffsetMinutes = 5.5 * 60;
-            const nowIST = new Date(nowUTC.getTime() + (ISTOffsetMinutes * 60 * 1000));
-            
-            return nowIST.toLocaleTimeString('en-IN', {
-                timeZone: 'Asia/Kolkata',
-                hour12: true
-            });
-        } catch (error) {
-            // Fallback time calculation
-            const nowUTC = new Date();
-            const istOffset = 5.5 * 60 * 60 * 1000;
-            const nowIST = new Date(nowUTC.getTime() + istOffset);
-            return nowIST.toLocaleTimeString('en-IN', { hour12: true });
-        }
-    }
-
-    // Setup automatic IST updates
-    setupISTTimer() {
-        // Clear any existing timer
-        if (this.istUpdateTimer) {
-            clearInterval(this.istUpdateTimer);
-        }
-        
-        // Update every 2 minutes to catch date changes quickly
-        this.istUpdateTimer = setInterval(() => {
-            this.calculateTodayIST();
-        }, 2 * 60 * 1000); // Every 2 minutes
-        
-        // Also setup a more precise midnight IST update
-        this.setupMidnightISTUpdate();
-    }
-
-    // Setup precise midnight IST update
-    setupMidnightISTUpdate() {
-        const scheduleNextMidnightUpdate = () => {
-            try {
-                const nowUTC = new Date();
-                const ISTOffsetMinutes = 5.5 * 60;
-                const nowIST = new Date(nowUTC.getTime() + (ISTOffsetMinutes * 60 * 1000));
-                
-                // Calculate next midnight IST
-                const nextMidnightIST = new Date(nowIST);
-                nextMidnightIST.setHours(24, 0, 0, 0); // Next day at 00:00:00 IST
-                
-                // Convert back to UTC for setTimeout
-                const nextMidnightUTC = new Date(nextMidnightIST.getTime() - (ISTOffsetMinutes * 60 * 1000));
-                const msUntilMidnight = nextMidnightUTC.getTime() - nowUTC.getTime();
-                
-                // Schedule update at IST midnight (with small delay to ensure date change)
-                setTimeout(() => {
-                    this.calculateTodayIST();
-                    scheduleNextMidnightUpdate(); // Schedule next midnight update
-                }, msUntilMidnight + 2000); // Add 2 second delay
-                
-            } catch (error) {
-                console.warn('Midnight IST scheduling failed, using fallback:', error);
-                // Fallback: just check every hour
-                setTimeout(() => {
-                    this.calculateTodayIST();
-                    scheduleNextMidnightUpdate();
-                }, 60 * 60 * 1000); // Every hour
-            }
-        };
-        
-        scheduleNextMidnightUpdate();
-    }
-
-    // Legacy method for backward compatibility
-    setupISTUpdates() {
-        // Clear any existing timer
-        if (this.istUpdateTimer) {
-            clearInterval(this.istUpdateTimer);
-        }
-        
-        // Update every 2 minutes to catch date changes
-        this.istUpdateTimer = setInterval(() => {
-            this.calculateTodayIST();
-        }, 2 * 60 * 1000); // Every 2 minutes
-    }
-
-    // Legacy method for backward compatibility
-    updateISTToday() {
-        return this.calculateTodayIST();
-    }
-
+    
     initializeApp() {
-        this.setupNavigation();
-        this.setupCalendar();
-        this.updateCurrentDate();
-        // Load events for August 2025 (current month)
-        this.currentDate = new Date(2025, 7, 1); // Set to August 2025
-        this.loadMonthEvents(7, 2025); // Load August 2025 events
-        
-        // Show current IST date on app load
-        if (authSystem && authSystem.showMessage) {
-            authSystem.showMessage(`Today: ${this.todayFormatted}`, 'info');
-        }
+        this.setupEventListeners();
+        this.renderCalendar();
+        this.renderFestivalList();
+        this.updateLocationDisplay();
     }
-
-    setupNavigation() {
-        const navItems = document.querySelectorAll('.nav-item');
-        const actionCards = document.querySelectorAll('.action-card');
+    
+    setupEventListeners() {
+        // Navigation buttons
+        document.getElementById('prevMonth').addEventListener('click', () => {
+            this.navigateMonth(-1);
+        });
         
-        navItems.forEach(item => {
-            item.addEventListener('click', (e) => {
-                e.preventDefault();
-                const section = item.getAttribute('data-section');
-                if (section === 'admin' && (!authSystem.currentUser || authSystem.currentUser.type !== 'admin')) {
-                    authSystem.showMessage('Admin access required', 'error');
-                    return;
-                }
-                this.switchSection(section);
-            });
+        document.getElementById('nextMonth').addEventListener('click', () => {
+            this.navigateMonth(1);
         });
-
-        actionCards.forEach(card => {
-            card.addEventListener('click', () => {
-                const section = card.getAttribute('data-section');
-                if (section) {
-                    this.switchSection(section);
-                }
-            });
-        });
-    }
-
-    switchSection(sectionName) {
-        // Update navigation
-        document.querySelectorAll('.nav-item').forEach(item => {
-            item.classList.remove('active');
-        });
-        document.querySelector(`[data-section="${sectionName}"]`).classList.add('active');
-
-        // Update content
-        document.querySelectorAll('.content-section').forEach(section => {
-            section.classList.remove('active');
-        });
-        document.getElementById(`${sectionName}-section`).classList.add('active');
-
-        this.currentSection = sectionName;
-
-        // Initialize calendar if switching to calendar section
-        if (sectionName === 'calendar') {
+        
+        // Location selector
+        document.getElementById('locationSelect').addEventListener('change', (e) => {
+            this.selectedLocation = e.target.value;
+            this.updateLocationDisplay();
             this.renderCalendar();
-        }
+            this.renderFestivalList();
+        });
         
-        // Initialize admin panel if switching to admin section
-        if (sectionName === 'admin' && authSystem.currentUser && authSystem.currentUser.type === 'admin') {
-            authSystem.updateContentLibrary();
-            authSystem.updateUserManagement();
-        }
+        // Community selector
+        document.getElementById('communitySelect').addEventListener('change', (e) => {
+            this.selectedCommunity = e.target.value;
+            this.renderCalendar();
+            this.renderFestivalList();
+        });
         
-        // Initialize bhajans section if switching to bhajans section
-        if (sectionName === 'bhajans') {
-            this.initializeBhajansSection();
-        } else if (sectionName === 'admin' && authSystem.currentUser && authSystem.currentUser.type === 'admin') {
-            // When switching to admin, mark that we might upload content
-            this.adminSectionActive = true;
-        }
-        
-        // Update admin-only elements visibility when switching sections
-        if (authSystem && authSystem.currentUser && authSystem.currentUser.type === 'admin') {
-            const adminOnlyElements = document.querySelectorAll('.admin-only');
-            adminOnlyElements.forEach(element => {
-                if (sectionName === 'bhajans' && element.id === 'syncContentBtn') {
-                    element.style.display = 'flex';
-                } else if (element.id === 'syncContentBtn') {
-                    element.style.display = 'none';
-                }
+        // Filter tabs
+        document.querySelectorAll('.filter-tab').forEach(tab => {
+            tab.addEventListener('click', (e) => {
+                this.setFilter(e.target.dataset.filter);
             });
-        }
+        });
+        
+        // Modal close
+        document.getElementById('closeModal').addEventListener('click', () => {
+            this.closeModal();
+        });
+        
+        // Close modal when clicking outside
+        document.getElementById('festivalModal').addEventListener('click', (e) => {
+            if (e.target.id === 'festivalModal') {
+                this.closeModal();
+            }
+        });
     }
-
-    setupCalendar() {
-        const prevBtn = document.getElementById('prevMonth');
-        const nextBtn = document.getElementById('nextMonth');
-
-        if (prevBtn) {
-            prevBtn.addEventListener('click', () => {
-                this.navigateMonth(-1);
-            });
-        }
-
-        if (nextBtn) {
-            nextBtn.addEventListener('click', () => {
-                this.navigateMonth(1);
-            });
-        }
-    }
-
+    
     navigateMonth(direction) {
-        const currentMonth = this.currentDate.getMonth();
-        const currentYear = this.currentDate.getFullYear();
+        this.currentMonth += direction;
         
-        let newMonth = currentMonth + direction;
-        let newYear = currentYear;
-        
-        // Handle year boundaries
-        if (newMonth < 0) {
-            newMonth = 11;
-            newYear--;
-        } else if (newMonth > 11) {
-            newMonth = 0;
-            newYear++;
+        if (this.currentMonth < 0) {
+            this.currentMonth = 11;
+            this.currentYear--;
+        } else if (this.currentMonth > 11) {
+            this.currentMonth = 0;
+            this.currentYear++;
         }
         
-        // Only allow navigation within 2025
-        if (newYear === 2025) {
-            this.currentDate = new Date(newYear, newMonth, 1);
-            this.loadMonthEvents(newMonth, newYear);
-            this.renderCalendar();
-            
-            // Show success message
-            if (authSystem && authSystem.showMessage) {
-                const monthNames = [
-                    'January', 'February', 'March', 'April', 'May', 'June',
-                    'July', 'August', 'September', 'October', 'November', 'December'
-                ];
-                authSystem.showMessage(`Navigated to ${monthNames[newMonth]} 2025`, 'success');
-            }
+        this.renderCalendar();
+        this.renderFestivalList();
+    }
+    
+    setFilter(filter) {
+        this.currentFilter = filter;
+        
+        // Update active tab
+        document.querySelectorAll('.filter-tab').forEach(tab => {
+            tab.classList.remove('active');
+        });
+        document.querySelector(`[data-filter="${filter}"]`).classList.add('active');
+        
+        this.renderFestivalList();
+    }
+    
+    updateLocationDisplay() {
+        const locationDisplay = document.getElementById('currentLocation');
+        if (this.selectedLocation && LOCATION_DATA[this.selectedLocation]) {
+            locationDisplay.textContent = `📍 ${LOCATION_DATA[this.selectedLocation].name}`;
         } else {
-            // Show message if trying to navigate outside 2025
-            if (authSystem && authSystem.showMessage) {
-                authSystem.showMessage('Navigation limited to year 2025', 'info');
-            }
-        }
-        
-        // Force re-render to ensure proper layout
-        setTimeout(() => {
-            this.renderCalendar();
-        }, 100);
-    }
-
-    loadMonthEvents(month, year) {
-        // Clear current events
-        this.currentMonthEvents = [];
-        
-        if (year !== 2025) return;
-        
-        switch (month) {
-            case 0: // January 2025
-                this.currentMonthEvents = [
-                    { date: 1, name: 'Swami Devprakashji 87th Bdy', type: 'sindhi', major: true },
-                    { date: 1, name: 'Chand', type: 'hindu', major: false },
-                    { date: 3, name: 'Ganesh Chaturthi', type: 'hindu', major: true },
-                    { date: 6, name: 'Guru Gobind Singh Jayanti', type: 'sindhi', major: true },
-                    { date: 10, name: 'Ekadashi', type: 'hindu', major: false },
-                    { date: 12, name: 'Swami Vivekanand Birthday', type: 'sindhi', major: true },
-                    { date: 13, name: 'Lohri (Lal Loi)', type: 'sindhi', major: true },
-                    { date: 13, name: 'Satya Narayan', type: 'hindu', major: false },
-                    { date: 14, name: 'Makarsankranti (Utran)', type: 'hindu', major: true },
-                    { date: 16, name: 'Sadhu T.L. Vaswani 59th Ann.', type: 'sindhi', major: true },
-                    { date: 17, name: 'Ganesh Chaturthi', type: 'hindu', major: true },
-                    { date: 20, name: 'Martin Luther King Day', type: 'other', major: false },
-                    { date: 25, name: 'Ekadashi', type: 'hindu', major: false },
-                    { date: 26, name: 'India\'s Republic Day', type: 'other', major: true },
-                    { date: 29, name: 'Amavasya', type: 'hindu', major: false },
-                    { date: 30, name: 'Chand', type: 'hindu', major: false }
-                ];
-                break;
-                
-            case 1: // February 2025
-                this.currentMonthEvents = [
-                    { date: 1, name: 'Bhagwanti Navani Birthday', type: 'sindhi', major: true },
-                    { date: 1, name: 'Ganesh Chaturthi', type: 'hindu', major: true },
-                    { date: 2, name: 'Vasant Panchami, Sarswati Puja', type: 'hindu', major: true },
-                    { date: 8, name: 'Ekadashi', type: 'hindu', major: false },
-                    { date: 12, name: 'Satya Narayan', type: 'hindu', major: false },
-                    { date: 14, name: 'Saint Valentine\'s Day', type: 'other', major: false },
-                    { date: 18, name: 'Dada J.P. Vaswani Thanksgiving Wk', type: 'sindhi', major: true },
-                    { date: 24, name: 'Ekadashi', type: 'hindu', major: false },
-                    { date: 26, name: 'Maha Shivaratri', type: 'hindu', major: true },
-                    { date: 27, name: 'Amavasya', type: 'hindu', major: false }
-                ];
-                break;
-                
-            case 2: // March 2025
-                this.currentMonthEvents = [
-                    { date: 1, name: 'Chand', type: 'hindu', major: false },
-                    { date: 1, name: 'Kamakrishna Parmhansa Jayanti', type: 'sindhi', major: true },
-                    { date: 10, name: 'Ekadashi', type: 'hindu', major: false },
-                    { date: 13, name: 'Holika Dahan', type: 'hindu', major: true },
-                    { date: 14, name: 'Holi, Satya Narayan', type: 'hindu', major: true },
-                    { date: 17, name: 'Ganesh Chaturthi', type: 'hindu', major: true },
-                    { date: 25, name: 'Ekadashi', type: 'hindu', major: false },
-                    { date: 30, name: 'Chet Chand', type: 'sindhi', major: true }
-                ];
-                break;
-                
-            case 3: // April 2025
-                this.currentMonthEvents = [
-                    { date: 5, name: 'Durga Ashtami (Kamya Puja)', type: 'hindu', major: true },
-                    { date: 6, name: 'Ramnavami', type: 'hindu', major: true },
-                    { date: 8, name: 'Ekadashi', type: 'hindu', major: false },
-                    { date: 11, name: 'Hanuman Jayanti', type: 'hindu', major: true },
-                    { date: 12, name: 'Satya Narayan, Hanuman Jayanti', type: 'hindu', major: true },
-                    { date: 13, name: 'Baisakhi Kanwar Ram Birthday', type: 'sindhi', major: true },
-                    { date: 14, name: 'Vaisakhi', type: 'hindu', major: true },
-                    { date: 20, name: 'Guru Amaidas Jayanti', type: 'sindhi', major: true },
-                    { date: 24, name: 'Ekadashi', type: 'hindu', major: false },
-                    { date: 29, name: 'Chand', type: 'hindu', major: false },
-                    { date: 30, name: 'Akhar Teej (Akshaya Tritiya)', type: 'hindu', major: true }
-                ];
-                break;
-                
-            case 4: // May 2025
-                this.currentMonthEvents = [
-                    { date: 3, name: 'Ganga Saptami', type: 'hindu', major: false },
-                    { date: 8, name: 'Ekadashi', type: 'hindu', major: false },
-                    { date: 11, name: 'Buddha Day, Narasimh Jayanti', type: 'hindu', major: true },
-                    { date: 12, name: 'Satya Narayan', type: 'hindu', major: false },
-                    { date: 14, name: 'Narad Jayanti', type: 'hindu', major: true },
-                    { date: 23, name: 'Ekadashi', type: 'hindu', major: false },
-                    { date: 24, name: 'Vat Savitri Vrat', type: 'hindu', major: true },
-                    { date: 27, name: 'Shani Jayanti, Amavasya', type: 'hindu', major: true },
-                    { date: 28, name: 'Chand', type: 'hindu', major: false }
-                ];
-                break;
-                
-            case 5: // June 2025
-                this.currentMonthEvents = [
-                    { date: 1, name: 'Swami Teooramji\'s 83rd Aniv.', type: 'sindhi', major: true },
-                    { date: 5, name: 'Ganga Dashmi', type: 'hindu', major: false },
-                    { date: 6, name: 'Ekadashi (Nirjala)', type: 'hindu', major: false },
-                    { date: 11, name: 'Satya Narayan, Kabir Jayanti', type: 'hindu', major: true },
-                    { date: 21, name: 'Ekadashi', type: 'hindu', major: false },
-                    { date: 26, name: 'Chand', type: 'hindu', major: false },
-                    { date: 30, name: 'Swami Teooramji\'s 139th Bdy', type: 'sindhi', major: true }
-                ];
-                break;
-                
-            case 6: // July 2025
-                this.currentMonthEvents = [
-                    { date: 6, name: 'Ekadashi', type: 'hindu', major: false },
-                    { date: 10, name: 'Satya Narayan, Guru Purnima', type: 'hindu', major: true },
-                    { date: 12, name: 'Dada J.P. Vaswani\'s 107th Anniversary', type: 'sindhi', major: true },
-                    { date: 14, name: 'Hariyali Somvar Vrat Starts', type: 'hindu', major: false },
-                    { date: 21, name: 'Ekadashi', type: 'hindu', major: false },
-                    { date: 25, name: 'Chand', type: 'hindu', major: false },
-                    { date: 29, name: 'Nag Panchami', type: 'hindu', major: true },
-                    { date: 29, name: 'Swami Saraswatiji\'s 48th Aniv.', type: 'sindhi', major: true },
-                    { date: 31, name: 'Thadri Small (Nandi Satahi)', type: 'sindhi', major: false },
-                    { date: 31, name: 'Tulsi Divas Jayanti', type: 'hindu', major: false }
-                ];
-                break;
-                
-            case 7: // August 2025
-                this.currentMonthEvents = [
-                    { date: 2, name: 'Dada J.P. Vaswani 107th Bdy', type: 'sindhi', major: true },
-                    { date: 4, name: 'Swami Somvar Vrat Ends', type: 'hindu', major: false },
-                    { date: 5, name: 'Ekadashi', type: 'hindu', major: false },
-                    { date: 9, name: 'Raksha Bandhan, Satya Narayan', type: 'hindu', major: true },
-                    { date: 9, name: 'Swami Shanti Prakashji\'s 120th Bdy', type: 'sindhi', major: true },
-                    { date: 12, name: 'Teejri, Ganesh Chaturthi', type: 'sindhi', major: true },
-                    { date: 15, name: 'Thadri Shanti Prakashji\'s 33rd Aniv.', type: 'sindhi', major: true },
-                    { date: 15, name: 'Thadri (Vadi Satai)', type: 'sindhi', major: true },
-                    { date: 16, name: 'Krishna Janmashtami', type: 'hindu', major: true },
-                    { date: 19, name: 'Ekadashi', type: 'hindu', major: false },
-                    { date: 24, name: 'Rishi Panchami', type: 'hindu', major: true },
-                    { date: 25, name: 'Mahalaxmi Sagra Begins, Radhashimi', type: 'hindu', major: true }
-                ];
-                break;
-                
-            case 8: // September 2025
-                this.currentMonthEvents = [
-                    { date: 3, name: 'Ekadashi', type: 'hindu', major: false },
-                    { date: 4, name: 'Vaman Jayanti', type: 'hindu', major: true },
-                    { date: 7, name: 'Ganesh Chaturthi, Ganpati Visarjan', type: 'hindu', major: true },
-                    { date: 7, name: 'Satya Narayan', type: 'hindu', major: false },
-                    { date: 8, name: 'Ganesh Ends', type: 'hindu', major: false },
-                    { date: 14, name: 'Mahalaxmi Sagra Ends', type: 'hindu', major: true },
-                    { date: 17, name: 'Ekadashi', type: 'hindu', major: false },
-                    { date: 21, name: 'Shradh Ends, Amavasya', type: 'hindu', major: false },
-                    { date: 22, name: 'Navratri Starts', type: 'hindu', major: true },
-                    { date: 23, name: 'Chand', type: 'hindu', major: false },
-                    { date: 30, name: 'Durgashtami', type: 'hindu', major: true },
-                    { date: 30, name: 'Swami Teooramji\'s 128th Bdy', type: 'sindhi', major: true }
-                ];
-                break;
-                
-            case 9: // October 2025
-                this.currentMonthEvents = [
-                    { date: 2, name: 'Vijay Dashmi/Dushera', type: 'hindu', major: true },
-                    { date: 3, name: 'Ekadashi', type: 'hindu', major: false },
-                    { date: 6, name: 'Karva Chauth', type: 'hindu', major: true },
-                    { date: 9, name: 'Valmiki Jayanti', type: 'hindu', major: false },
-                    { date: 10, name: 'Ganesh Chaturthi, Ganesh Chaturthi', type: 'hindu', major: true },
-                    { date: 12, name: 'Pandit Mohanal 80th Bdy', type: 'sindhi', major: true },
-                    { date: 17, name: 'Ekadashi', type: 'hindu', major: false },
-                    { date: 18, name: 'Dhanteras', type: 'hindu', major: true },
-                    { date: 19, name: 'Goop Chandas, Ganesh Chaturthi', type: 'hindu', major: true },
-                    { date: 20, name: 'Diwali, Amavasya', type: 'hindu', major: true },
-                    { date: 22, name: 'Annakut Goverdhan Puja', type: 'hindu', major: true },
-                    { date: 23, name: 'Bhai Dooj, Chand', type: 'hindu', major: true },
-                    { date: 25, name: 'Bhagat Kanwar Ram Aniv.', type: 'sindhi', major: true },
-                    { date: 30, name: 'Gopashtami', type: 'hindu', major: false }
-                ];
-                break;
-                
-            case 10: // November 2025
-                this.currentMonthEvents = [
-                    { date: 1, name: 'Satya Viyah, Ekadashi', type: 'hindu', major: false },
-                    { date: 3, name: 'Tulsi Vivah, Satya Narayan', type: 'hindu', major: true },
-                    { date: 5, name: 'Guru Nanak Jayanti', type: 'sindhi', major: true },
-                    { date: 22, name: 'Chand', type: 'hindu', major: false },
-                    { date: 25, name: 'Sadhu T.L. Vaswani 146th Bdy', type: 'sindhi', major: true },
-                    { date: 25, name: 'Ram Sita Wedding', type: 'hindu', major: true }
-                ];
-                break;
-                
-            case 11: // December 2025
-                this.currentMonthEvents = [
-                    { date: 1, name: 'Gita Jayanti, Ekadashi', type: 'hindu', major: true },
-                    { date: 4, name: 'Satya Narayan', type: 'hindu', major: false },
-                    { date: 7, name: 'Master Chander Bday', type: 'sindhi', major: true },
-                    { date: 15, name: 'Ekadashi', type: 'hindu', major: false },
-                    { date: 21, name: 'Chand', type: 'hindu', major: false },
-                    { date: 27, name: 'Pandit Mohanal 7th Aniv.', type: 'sindhi', major: true },
-                    { date: 30, name: 'Ekadashi', type: 'hindu', major: false }
-                ];
-                break;
+            locationDisplay.textContent = 'Select location for accurate timings';
         }
     }
-
-    updateCurrentDate() {
-        if (!this.today) return;
-        
-        // Use the pre-formatted IST date string
-        const dateString = this.todayFormatted;
-        
-        // Update all page headers with the IST date
-        const dateElements = document.querySelectorAll('.page-header p');
-        dateElements.forEach(element => {
-            // Update the today section date display (first page header)
-            const parentSection = element.closest('.content-section');
-            if (parentSection && parentSection.id === 'today-section') {
-                element.textContent = dateString;
-            }
-        });
-        
-        // Also update any other date displays that should show today's date
-        const todayHeaders = document.querySelectorAll('#today-section .page-header p');
-        todayHeaders.forEach(element => {
-            element.textContent = dateString;
-        });
-    }
-
+    
     renderCalendar() {
         const monthNames = [
             'January', 'February', 'March', 'April', 'May', 'June',
             'July', 'August', 'September', 'October', 'November', 'December'
         ];
-
-        // Update month header
-        const monthHeader = document.getElementById('currentMonth');
-        if (monthHeader) {
-            monthHeader.textContent = `${monthNames[this.currentDate.getMonth()]} ${this.currentDate.getFullYear()}`;
-        }
-
-        // Update navigation button states
-        const prevBtn = document.getElementById('prevMonth');
-        const nextBtn = document.getElementById('nextMonth');
         
-        if (prevBtn && nextBtn) {
-            const currentYear = this.currentDate.getFullYear();
-            const currentMonth = this.currentDate.getMonth();
-            
-            // Update button states
-            if (currentYear === 2025 && currentMonth === 0) {
-                prevBtn.disabled = true;
-                prevBtn.style.opacity = '0.5';
-                prevBtn.style.cursor = 'not-allowed';
-            } else {
-                prevBtn.disabled = false;
-                prevBtn.style.opacity = '1';
-                prevBtn.style.cursor = 'pointer';
-            }
-            
-            if (currentYear === 2025 && currentMonth === 11) {
-                nextBtn.disabled = true;
-                nextBtn.style.opacity = '0.5';
-                nextBtn.style.cursor = 'not-allowed';
-            } else {
-                nextBtn.disabled = false;
-                nextBtn.style.opacity = '1';
-                nextBtn.style.cursor = 'pointer';
-            }
-        }
-
-        // Render calendar grid
+        // Update month display
+        document.getElementById('currentMonthYear').textContent = 
+            `${monthNames[this.currentMonth]} ${this.currentYear}`;
+        
         const calendarGrid = document.getElementById('calendarGrid');
-        if (!calendarGrid) return;
-
         calendarGrid.innerHTML = '';
-
-        const year = this.currentDate.getFullYear();
-        const month = this.currentDate.getMonth();
-        const firstDay = new Date(year, month, 1);
-        const lastDay = new Date(year, month + 1, 0);
-        const startDate = new Date(firstDay);
-        startDate.setDate(startDate.getDate() - firstDay.getDay());
-
-        // Generate 42 days (6 weeks)
-        for (let i = 0; i < 42; i++) {
-            const date = new Date(startDate);
-            date.setDate(startDate.getDate() + i);
-            
-            const dayElement = this.createDayElement(date, month);
+        
+        // Get first day of month and number of days
+        const firstDay = new Date(this.currentYear, this.currentMonth, 1);
+        const lastDay = new Date(this.currentYear, this.currentMonth + 1, 0);
+        const daysInMonth = lastDay.getDate();
+        const startingDayOfWeek = firstDay.getDay();
+        
+        // Get previous month's last days
+        const prevMonth = new Date(this.currentYear, this.currentMonth, 0);
+        const daysInPrevMonth = prevMonth.getDate();
+        
+        // Add previous month's trailing days
+        for (let i = startingDayOfWeek - 1; i >= 0; i--) {
+            const dayElement = this.createDayElement(
+                daysInPrevMonth - i, 
+                true, 
+                this.currentMonth === 0 ? 11 : this.currentMonth - 1,
+                this.currentMonth === 0 ? this.currentYear - 1 : this.currentYear
+            );
             calendarGrid.appendChild(dayElement);
         }
         
-        // Show success message when calendar is loaded
-        if (authSystem && authSystem.showMessage) {
-            authSystem.showMessage(`Calendar loaded for ${monthNames[month]} 2025 with ${this.currentMonthEvents.length} events`, 'success');
+        // Add current month's days
+        for (let day = 1; day <= daysInMonth; day++) {
+            const dayElement = this.createDayElement(day, false, this.currentMonth, this.currentYear);
+            calendarGrid.appendChild(dayElement);
+        }
+        
+        // Add next month's leading days
+        const totalCells = calendarGrid.children.length;
+        const remainingCells = 42 - totalCells; // 6 rows × 7 days
+        
+        for (let day = 1; day <= remainingCells; day++) {
+            const dayElement = this.createDayElement(
+                day, 
+                true, 
+                this.currentMonth === 11 ? 0 : this.currentMonth + 1,
+                this.currentMonth === 11 ? this.currentYear + 1 : this.currentYear
+            );
+            calendarGrid.appendChild(dayElement);
         }
     }
-
-    createDayElement(date, currentMonth) {
-        const dayDiv = document.createElement('div');
-        dayDiv.className = 'calendar-day';
+    
+    createDayElement(day, isOtherMonth, month, year) {
+        const dayElement = document.createElement('div');
+        dayElement.className = 'calendar-day';
         
-        const isCurrentMonth = date.getMonth() === currentMonth;
-        const isToday = this.isSameDay(date, this.today);
-        
-        if (!isCurrentMonth) {
-            dayDiv.classList.add('other-month');
+        if (isOtherMonth) {
+            dayElement.classList.add('other-month');
         }
         
-        if (isToday) {
-            dayDiv.classList.add('today');
+        // Check if it's today
+        const today = new Date();
+        if (!isOtherMonth && 
+            day === today.getDate() && 
+            month === today.getMonth() && 
+            year === today.getFullYear()) {
+            dayElement.classList.add('today');
         }
-
+        
         // Day number
         const dayNumber = document.createElement('div');
         dayNumber.className = 'day-number';
-        dayNumber.textContent = date.getDate();
-        dayDiv.appendChild(dayNumber);
-
-        // Events for this day (only for current month)
-        const dayEvents = isCurrentMonth ? 
-            this.currentMonthEvents.filter(event => event.date === date.getDate()) : [];
+        dayNumber.textContent = day;
+        dayElement.appendChild(dayNumber);
         
-        if (dayEvents.length > 0) {
-            const eventsContainer = document.createElement('div');
-            eventsContainer.className = 'day-events';
-            
-            // Calculate how many events can fit based on screen size
-            const maxVisibleEvents = this.getMaxVisibleEvents();
-            const visibleEvents = dayEvents.slice(0, maxVisibleEvents);
-            const remainingCount = dayEvents.length - visibleEvents.length;
-            
-            visibleEvents.forEach(event => {
-                const eventPill = document.createElement('div');
-                eventPill.className = `event-pill ${event.type}`;
-                eventPill.textContent = this.truncateEventName(event.name);
-                eventPill.title = event.name; // Tooltip for full name
-                
-                // Add click handler for event details
-                eventPill.addEventListener('click', (e) => {
+        // Events container
+        const eventsContainer = document.createElement('div');
+        eventsContainer.className = 'day-events';
+        
+        // Get festivals for this day
+        if (!isOtherMonth) {
+            const festivals = this.getFestivalsForDay(day, month + 1, year);
+            festivals.forEach(festival => {
+                const eventDot = document.createElement('div');
+                eventDot.className = `event-dot ${festival.type}`;
+                eventDot.textContent = festival.name;
+                eventDot.title = festival.name;
+                eventDot.addEventListener('click', (e) => {
                     e.stopPropagation();
-                    this.showEventDetails(event, date);
+                    this.showFestivalDetails(festival);
                 });
-                
-                eventsContainer.appendChild(eventPill);
-            });
-            
-            if (remainingCount > 0) {
-                const morePill = document.createElement('div');
-                morePill.className = 'event-pill more-events';
-                morePill.textContent = `+${remainingCount} more`;
-                morePill.addEventListener('click', (e) => {
-                    e.stopPropagation();
-                    this.showAllDayEvents(dayEvents, date);
-                });
-                eventsContainer.appendChild(morePill);
-            }
-            
-            dayDiv.appendChild(eventsContainer);
-            
-            // Add star for major festivals
-            const hasMajorFestival = dayEvents.some(event => event.major);
-            if (hasMajorFestival) {
-                const star = document.createElement('i');
-                star.className = 'fas fa-star major-festival-star';
-                dayDiv.appendChild(star);
-            }
-        }
-
-        return dayDiv;
-    }
-
-    getMaxVisibleEvents() {
-        // Determine max events based on screen size
-        const screenWidth = window.innerWidth;
-        if (screenWidth < 480) {
-            return 1; // Very small screens - show only 1 event
-        } else if (screenWidth < 768) {
-            return 2; // Mobile screens - show 2 events
-        } else {
-            return 3; // Desktop screens - show 3 events
-        }
-    }
-
-    truncateEventName(name) {
-        // Truncate event names based on screen size
-        const screenWidth = window.innerWidth;
-        let maxLength;
-        
-        if (screenWidth < 480) {
-            maxLength = 8; // Very short on small screens
-        } else if (screenWidth < 768) {
-            maxLength = 12; // Medium length on mobile
-        } else {
-            maxLength = 20; // Full length on desktop
-        }
-        
-        if (name.length > maxLength) {
-            return name.substring(0, maxLength - 3) + '...';
-        }
-        return name;
-    }
-
-    showEventDetails(event, date) {
-        const modal = document.createElement('div');
-        modal.className = 'event-modal';
-        
-        // Format date in IST using manual calculation
-        let dateString;
-        try {
-            dateString = new Intl.DateTimeFormat('en-IN', {
-                weekday: 'long',
-                year: 'numeric',
-                month: 'long',
-                day: 'numeric',
-                timeZone: 'Asia/Kolkata'
-            }).format(date);
-        } catch (error) {
-            // Fallback formatting
-            dateString = date.toLocaleDateString('en-IN', {
-                weekday: 'long',
-                year: 'numeric',
-                month: 'long',
-                day: 'numeric'
+                eventsContainer.appendChild(eventDot);
             });
         }
         
-        modal.innerHTML = `
-            <div class="event-modal-content">
-                <div class="event-modal-header">
-                    <h3>${event.name}</h3>
-                    <span class="event-modal-close">&times;</span>
+        dayElement.appendChild(eventsContainer);
+        return dayElement;
+    }
+    
+    getFestivalsForDay(day, month, year) {
+        if (!HINDU_CALENDAR_DATA[year] || !HINDU_CALENDAR_DATA[year][month]) {
+            return [];
+        }
+        
+        return HINDU_CALENDAR_DATA[year][month].filter(festival => festival.date === day);
+    }
+    
+    renderFestivalList() {
+        const festivalList = document.getElementById('festivalList');
+        const festivals = this.getCurrentMonthFestivals();
+        
+        if (festivals.length === 0) {
+            festivalList.innerHTML = `
+                <div class="empty-state">
+                    <i class="fas fa-calendar-times"></i>
+                    <h3>No festivals found</h3>
+                    <p>No festivals or observances found for the selected criteria.</p>
                 </div>
-                <div class="event-modal-body">
-                    <p><strong>Date:</strong> ${dateString} (IST)</p>
-                    <p><strong>Type:</strong> ${event.type.charAt(0).toUpperCase() + event.type.slice(1)} ${event.major ? '(Major Festival)' : ''}</p>
-                    ${event.description ? `<p><strong>Description:</strong> ${event.description}</p>` : ''}
-                    ${event.url ? `<p><a href="${event.url}" target="_blank" rel="noopener">Learn More</a></p>` : ''}
+            `;
+            return;
+        }
+        
+        festivalList.innerHTML = festivals.map(festival => {
+            const date = new Date(this.currentYear, this.currentMonth, festival.date);
+            const dateStr = date.toLocaleDateString('en-IN', { 
+                weekday: 'short', 
+                day: 'numeric', 
+                month: 'short' 
+            });
+            
+            return `
+                <div class="festival-item ${festival.type}" onclick="app.showFestivalDetails(${JSON.stringify(festival).replace(/"/g, '&quot;')})">
+                    <div class="festival-header">
+                        <h4 class="festival-name">${festival.name}</h4>
+                        <div>
+                            <span class="festival-date">${dateStr}</span>
+                            <span class="festival-type ${festival.type}">${festival.type}</span>
+                        </div>
+                    </div>
+                    <p class="festival-description">${festival.description.substring(0, 150)}...</p>
+                    ${this.getFestivalTags(festival)}
                 </div>
+            `;
+        }).join('');
+    }
+    
+    getCurrentMonthFestivals() {
+        const month = this.currentMonth + 1;
+        const year = this.currentYear;
+        
+        if (!HINDU_CALENDAR_DATA[year] || !HINDU_CALENDAR_DATA[year][month]) {
+            return [];
+        }
+        
+        let festivals = HINDU_CALENDAR_DATA[year][month];
+        
+        // Apply filter
+        if (this.currentFilter !== 'all') {
+            festivals = festivals.filter(festival => festival.type === this.currentFilter);
+        }
+        
+        // Sort by date
+        festivals.sort((a, b) => a.date - b.date);
+        
+        return festivals;
+    }
+    
+    getFestivalTags(festival) {
+        const tags = [];
+        
+        if (festival.fastingRules && festival.fastingRules.length > 0) {
+            tags.push('Fasting');
+        }
+        
+        if (festival.timing) {
+            tags.push('Specific Timing');
+        }
+        
+        if (this.selectedCommunity && festival.communitySpecific && festival.communitySpecific[this.selectedCommunity]) {
+            tags.push('Community Specific');
+        }
+        
+        if (tags.length === 0) return '';
+        
+        return `
+            <div class="festival-tags">
+                ${tags.map(tag => `<span class="festival-tag">${tag}</span>`).join('')}
             </div>
         `;
-        
-        document.body.appendChild(modal);
-        
-        // Close modal handlers
-        const closeBtn = modal.querySelector('.event-modal-close');
-        closeBtn.addEventListener('click', () => {
-            document.body.removeChild(modal);
-        });
-        
-        modal.addEventListener('click', (e) => {
-            if (e.target === modal) {
-                document.body.removeChild(modal);
-            }
-        });
-    }
-
-    showAllDayEvents(events, date) {
-        const modal = document.createElement('div');
-        modal.className = 'event-modal';
-        
-        // Format date in IST using manual calculation
-        let dateString;
-        try {
-            dateString = new Intl.DateTimeFormat('en-IN', {
-                weekday: 'long',
-                month: 'long',
-                day: 'numeric',
-                timeZone: 'Asia/Kolkata'
-            }).format(date);
-        } catch (error) {
-            // Fallback formatting
-            dateString = date.toLocaleDateString('en-IN', {
-                weekday: 'long',
-                month: 'long',
-                day: 'numeric'
-            });
-        }
-        
-        const eventsList = events.map(event => `
-            <div class="event-item-modal">
-                <span class="event-pill ${event.type}">${event.name}</span>
-                ${event.major ? '<i class="fas fa-star"></i>' : ''}
-            </div>
-        `).join('');
-        
-        modal.innerHTML = `
-            <div class="event-modal-content">
-                <div class="event-modal-header">
-                    <h3>Events on ${dateString}</h3>
-                    <span class="event-modal-close">&times;</span>
-                </div>
-                <div class="event-modal-body">
-                    ${eventsList}
-                </div>
-            </div>
-        `;
-        
-        document.body.appendChild(modal);
-        
-        // Close modal handlers
-        const closeBtn = modal.querySelector('.event-modal-close');
-        closeBtn.addEventListener('click', () => {
-            document.body.removeChild(modal);
-        });
-        
-        modal.addEventListener('click', (e) => {
-            if (e.target === modal) {
-                document.body.removeChild(modal);
-            }
-        });
-    }
-
-    formatDateKey(date) {
-        const year = date.getFullYear();
-        const month = String(date.getMonth() + 1).padStart(2, '0');
-        const day = String(date.getDate()).padStart(2, '0');
-        return `${year}-${month}-${day}`;
-    }
-
-    isSameDay(date1, date2) {
-        if (!date1 || !date2) return false;
-        
-        // Simple date comparison (assuming dates are already in correct timezone)
-        return date1.getFullYear() === date2.getFullYear() &&
-               date1.getMonth() === date2.getMonth() &&
-               date1.getDate() === date2.getDate();
     }
     
-    // Cleanup method
-    destroy() {
-        if (this.istUpdateTimer) {
-            clearInterval(this.istUpdateTimer);
-            this.istUpdateTimer = null;
-        }
+    showFestivalDetails(festival) {
+        const modal = document.getElementById('festivalModal');
+        const date = new Date(this.currentYear, this.currentMonth, festival.date);
         
-        // Cleanup audio player
-        if (this.audioPlayer) {
-            this.audioPlayer.cleanup();
-        }
+        // Update modal content
+        document.getElementById('modalTitle').textContent = festival.name;
+        document.getElementById('modalDate').textContent = date.toLocaleDateString('en-IN', {
+            weekday: 'long',
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric'
+        });
+        document.getElementById('modalType').textContent = festival.type.charAt(0).toUpperCase() + festival.type.slice(1);
+        document.getElementById('modalDescription').textContent = festival.description;
         
-        // Clear any content update flags
-        this.contentUpdated = false;
-        this.adminSectionActive = false;
-    }
-    
-    // Initialize Bhajans Section
-    initializeBhajansSection() {
-        if (!this.audioPlayer) {
-            this.audioPlayer = new AudioPlayer();
-        }
+        // Update observances
+        const observancesList = document.getElementById('modalObservances');
+        observancesList.innerHTML = festival.observances.map(obs => `<li>${obs}</li>`).join('');
         
-        // Setup sync button for admin users
-        this.setupSyncButton();
-        
-        this.loadBhajansContent();
-        
-        // Reset content updated flag since we're loading fresh content
-        this.contentUpdated = false;
-    }
-    
-    // Load Bhajans Content
-    loadBhajansContent() {
-        const content = JSON.parse(localStorage.getItem('sindhiTipnoContent')) || [];
-        const contentGrid = document.getElementById('bhajansContentGrid');
-        const emptyState = document.getElementById('bhajansEmptyState');
-        const audioPlayerContainer = document.getElementById('audioPlayerContainer');
-        
-        // Always ensure we have the latest content
-        this.currentBhajansContent = content;
-        
-        console.log('Loading bhajans content:', content.length, 'items');
-        
-        if (content.length === 0) {
-            if (contentGrid) contentGrid.style.display = 'none';
-            if (emptyState) emptyState.style.display = 'block';
-            audioPlayerContainer.style.display = 'none';
+        // Update fasting rules
+        const fastingSection = document.getElementById('modalFasting');
+        if (festival.fastingRules && festival.fastingRules.length > 0) {
+            fastingSection.style.display = 'block';
+            const fastingList = document.getElementById('modalFastingRules');
+            fastingList.innerHTML = festival.fastingRules.map(rule => `<li>${rule}</li>`).join('');
         } else {
-            if (contentGrid) contentGrid.style.display = 'grid';
-            if (emptyState) emptyState.style.display = 'none';
-            audioPlayerContainer.style.display = 'block';
-            
-            this.renderBhajansContent(content);
-            this.setupContentFilters();
+            fastingSection.style.display = 'none';
         }
         
-        // Show success message when content is loaded/updated
-        if (content.length > 0 && this.contentUpdated) {
-            if (authSystem && authSystem.showMessage) {
-                authSystem.showMessage(`Bhajans library updated with ${content.length} items`, 'success');
-            }
-            this.contentUpdated = false;
+        // Update community specific practices
+        const communitySection = document.getElementById('modalCommunitySpecific');
+        if (this.selectedCommunity && festival.communitySpecific && festival.communitySpecific[this.selectedCommunity]) {
+            communitySection.style.display = 'block';
+            document.getElementById('modalCommunityPractices').textContent = 
+                festival.communitySpecific[this.selectedCommunity];
+        } else {
+            communitySection.style.display = 'none';
         }
-    }
-    
-    // Render Bhajans Content
-    renderBhajansContent(content) {
-        const contentGrid = document.getElementById('bhajansContentGrid');
         
-        contentGrid.innerHTML = content.map((item, index) => `
-            <div class="content-card" data-content-id="${item.id}" data-index="${index}">
-                <div class="content-card-header">
-                    <div class="content-icon">
-                        <i class="fas ${item.type === 'aarti' ? 'fa-pray' : 'fa-music'}"></i>
-                    </div>
-                    <div class="content-info">
-                        <h4>${item.title}</h4>
-                        <span class="content-type-badge ${item.type}">${item.type}</span>
-                    </div>
-                </div>
-                ${item.description ? `<div class="content-description">${item.description}</div>` : ''}
-                <div class="content-meta">
-                    <span>Uploaded: ${new Date(item.uploadedAt).toLocaleDateString()}</span>
-                    <div class="play-indicator" style="display: none;">
-                        <i class="fas fa-volume-up"></i>
-                        <span>Playing</span>
-                    </div>
-                </div>
-            </div>
-        `).join('');
-        
-        // Add click listeners
-        document.querySelectorAll('.content-card').forEach(card => {
-            card.addEventListener('click', () => {
-                const contentId = card.getAttribute('data-content-id');
-                const index = parseInt(card.getAttribute('data-index'));
-                this.playContent(contentId, index, content);
-            });
-        });
-    }
-    
-    // Setup Content Filters
-    setupContentFilters() {
-        const filterBtns = document.querySelectorAll('.filter-btn');
-        
-        filterBtns.forEach(btn => {
-            btn.addEventListener('click', () => {
-                // Update active filter
-                filterBtns.forEach(b => b.classList.remove('active'));
-                btn.classList.add('active');
+        // Update timing information
+        const timingSection = document.getElementById('modalTime');
+        if (this.selectedLocation && festival.timing) {
+            const locationTiming = getLocationSpecificTiming(this.selectedLocation, date, festival.type);
+            if (locationTiming) {
+                timingSection.style.display = 'block';
+                let timingText = '';
                 
-                const filter = btn.getAttribute('data-filter');
-                this.filterContent(filter);
-            });
-        });
-    }
-    
-    // Setup Sync Button
-    setupSyncButton() {
-        const syncBtn = document.getElementById('syncContentBtn');
-        if (!syncBtn) return;
-        
-        // Show sync button only for admin users
-        if (authSystem && authSystem.currentUser && authSystem.currentUser.type === 'admin') {
-            syncBtn.style.display = 'flex';
-        } else {
-            syncBtn.style.display = 'none';
-        }
-        
-        // Add click handler
-        syncBtn.addEventListener('click', () => {
-            this.syncBhajansContent();
-        });
-    }
-    
-    // Sync Bhajans Content
-    syncBhajansContent() {
-        const syncBtn = document.getElementById('syncContentBtn');
-        if (!syncBtn) return;
-        
-        // Show syncing state
-        syncBtn.classList.add('syncing');
-        syncBtn.innerHTML = '<i class="fas fa-sync-alt"></i> Syncing...';
-        syncBtn.disabled = true;
-        
-        // Simulate sync process
-        setTimeout(() => {
-            // Force reload content
-            this.loadBhajansContent();
-            
-            // Reset button state
-            syncBtn.classList.remove('syncing');
-            syncBtn.innerHTML = '<i class="fas fa-sync-alt"></i> Sync Content';
-            syncBtn.disabled = false;
-            
-            // Show success message
-            const content = JSON.parse(localStorage.getItem('sindhiTipnoContent')) || [];
-            if (authSystem && authSystem.showMessage) {
-                authSystem.showMessage(`Content synced successfully! ${content.length} items loaded.`, 'success');
-            }
-        }, 1000);
-    }
-    
-    // Filter Content
-    filterContent(filter) {
-        const contentCards = document.querySelectorAll('.content-card');
-        
-        contentCards.forEach(card => {
-            const contentId = card.getAttribute('data-content-id');
-            const item = this.currentBhajansContent.find(c => c.id === contentId);
-            
-            if (filter === 'all' || (item && item.type === filter)) {
-                card.style.display = 'block';
+                if (festival.type === 'ekadashi' || festival.type === 'vrat') {
+                    timingText = `Fast: ${locationTiming.fastStart} to ${locationTiming.fastEnd}`;
+                } else if (festival.timing.sunrise) {
+                    timingText = `Sunrise: ${locationTiming.sunrise}`;
+                } else if (festival.timing.birth === 'Midnight') {
+                    timingText = `Birth Time: Midnight | Sunrise: ${locationTiming.sunrise}`;
+                }
+                
+                timingSection.querySelector('span').textContent = timingText;
             } else {
-                card.style.display = 'none';
+                timingSection.style.display = 'none';
             }
-        });
-    }
-    
-    // Play Content
-    playContent(contentId, index, contentList) {
-        const content = contentList.find(c => c.id === contentId);
-        if (content && this.audioPlayer) {
-            // Create a mock audio URL (in real app, this would be the actual file URL)
-            const audioUrl = `data:audio/mp3;base64,${content.fileName}`;
-            
-            this.audioPlayer.loadPlaylist(contentList, index);
-            this.audioPlayer.play();
-            
-            // Update UI
-            this.updatePlayingState(contentId);
+        } else {
+            timingSection.style.display = 'none';
         }
-    }
-    
-    // Update Playing State
-    updatePlayingState(playingId) {
-        // Remove playing state from all cards
-        document.querySelectorAll('.content-card').forEach(card => {
-            card.classList.remove('playing');
-            card.querySelector('.play-indicator').style.display = 'none';
-        });
         
-        // Add playing state to current card
-        if (playingId) {
-            const playingCard = document.querySelector(`[data-content-id="${playingId}"]`);
-            if (playingCard) {
-                playingCard.classList.add('playing');
-                playingCard.querySelector('.play-indicator').style.display = 'flex';
-            }
-        }
+        // Show modal
+        modal.style.display = 'block';
+        document.body.style.overflow = 'hidden';
+    }
+    
+    closeModal() {
+        document.getElementById('festivalModal').style.display = 'none';
+        document.body.style.overflow = 'auto';
     }
 }
 
-// Initialize the app when DOM is loaded
+// Initialize the application
+let app;
 document.addEventListener('DOMContentLoaded', () => {
-    window.sindhiTipnoApp = new SindhiTipnoApp();
+    app = new HinduCalendarApp();
 });
 
-// Cleanup on page unload
-window.addEventListener('beforeunload', () => {
-    if (window.sindhiTipnoApp && window.sindhiTipnoApp.destroy) {
-        window.sindhiTipnoApp.destroy();
-    }
-});
-
-// Handle window resize to update calendar layout
+// Handle window resize
 window.addEventListener('resize', () => {
-    // Debounce resize events
-    clearTimeout(window.resizeTimeout);
-    window.resizeTimeout = setTimeout(() => {
-        // Re-render calendar if it's currently visible
-        const calendarSection = document.getElementById('calendar-section');
-        if (calendarSection && calendarSection.classList.contains('active')) {
-            const app = window.sindhiTipnoApp;
-            if (app && app.renderCalendar) {
-                app.renderCalendar();
-            }
-        }
-    }, 250);
+    if (app) {
+        app.renderCalendar();
+    }
 });
